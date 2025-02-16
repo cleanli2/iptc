@@ -6,9 +6,11 @@
 
 #include <tchar.h>
 #include <windows.h>
+#include <cstdio>
 
 HINSTANCE hg_app;
 HWND editHd;
+HWND sHd;
 
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -24,6 +26,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     HWND hwnd;               /* This is the handle for our window */
     MSG messages;            /* Here messages to the application are saved */
     WNDCLASSEX wincl;        /* Data structure for the windowclass */
+
+    printf("started\r\n");
 
     /* The Window structure */
     wincl.hInstance = hThisInstance;
@@ -75,6 +79,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
         DispatchMessage(&messages);
     }
 
+    printf("end\r\n");
+
     /* The program return-value is 0 - The value that PostQuitMessage() gave */
     return messages.wParam;
 }
@@ -86,14 +92,17 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 {
     switch (message)                  /* handle the messages */
     {
-    case WM_CREATE:
-        {
+        case WM_CREATE:
+            printf("created\r\n");
+            {
                 editHd = CreateWindow(TEXT("edit"),TEXT("99"),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT,
                         80, 80, 260, 200, hwnd,(HMENU)3301, hg_app,NULL);
+                CreateWindow("Button", "b1", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                        10, 10, 60, 20, hwnd, (HMENU)3302, hg_app, NULL);
+                sHd = CreateWindow("Static","server ip", SS_SIMPLE | WS_CHILD | WS_VISIBLE,
+                        10, 40, 150,20, hwnd, NULL, hg_app, NULL);
                 break;
-
-
-        }
+            }
         case WM_DESTROY:
             PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
             break;
