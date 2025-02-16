@@ -8,6 +8,8 @@
 #include <windows.h>
 #include <cstdio>
 
+//#pragma comment(lib, "ws2_32.lib")
+
 HINSTANCE hg_app;
 HWND editHd;
 HWND sHd;
@@ -108,6 +110,13 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         10, 40, 150,20, hwnd, NULL, hg_app, NULL);
                 break;
             }
+        case WM_CTLCOLOREDIT:
+            printf("WM_CTLCOLOREDIT\r\n");
+            if(editHd==(HWND)lParam){
+                printf("my edit\r\n");
+                ::SetTextColor((HDC)wParam, RGB(0,0,255));
+            }
+            break;
         case WM_COMMAND:
             printf("wmcmd\r\n");
             switch(LOWORD(wParam))
@@ -120,6 +129,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         if(strlen(strbuf)>20){
                             printf("exceed 20\r\n");
                             SetWindowText(editHd, "99");
+                        }
+                        if(!strcmp(strbuf, "hello")){
+                            printf("hello\r\n");
                         }
                     }
 
