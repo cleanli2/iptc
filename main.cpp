@@ -94,7 +94,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    printf("-%x %x\r\n", wParam, lParam);
+    //printf("-%x %x\r\n", wParam, lParam);
     switch (message)                  /* handle the messages */
     {
         case WM_CREATE:
@@ -117,6 +117,10 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         printf("EN_CHANGE\r\n");
                         GetWindowText(editHd, strbuf, 128);
                         printf("%s\r\n", strbuf);
+                        if(strlen(strbuf)>20){
+                            printf("exceed 20\r\n");
+                            SetWindowText(editHd, "99");
+                        }
                     }
 
                     break;
