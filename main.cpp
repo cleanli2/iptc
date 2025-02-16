@@ -15,6 +15,9 @@ HWND editHd;
 HWND sHd;
 #define MY_ID_EDIT 0x3501
 #define MY_ID_BT 0x3502
+#define TEXT_W 300
+#define TEXT_H 100
+
 char strbuf[128];
 
 /*  Declare Windows procedure  */
@@ -65,8 +68,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
            WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX& ~WS_THICKFRAME,
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */
-           544,                 /* The programs width */
-           375,                 /* and height in pixels */
+           TEXT_W+40,                 /* The programs width */
+           TEXT_H*2,                 /* and height in pixels */
            HWND_DESKTOP,        /* The window is a child-window to desktop */
            NULL,                /* No menu */
            hThisInstance,       /* Program Instance handler */
@@ -102,12 +105,12 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         case WM_CREATE:
             printf("created\r\n");
             {
-                editHd = CreateWindow(TEXT("edit"),TEXT("99"),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT|ES_MULTILINE,
-                        80, 80, 260, 200, hwnd,(HMENU)MY_ID_EDIT, hg_app,NULL);
-                CreateWindow("Button", "b1", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        10, 10, 60, 20, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
-                sHd = CreateWindow("Static","server ip", SS_SIMPLE | WS_CHILD | WS_VISIBLE,
-                        10, 40, 150,20, hwnd, NULL, hg_app, NULL);
+                editHd = CreateWindow(TEXT("edit"),TEXT(""),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT|ES_MULTILINE,
+                        20, 50, TEXT_W, TEXT_H, hwnd,(HMENU)MY_ID_EDIT, hg_app,NULL);
+                CreateWindow("Button", "重来", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                        10, 10, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
+                sHd = CreateWindow("Static","没有开始", SS_SIMPLE | WS_CHILD | WS_VISIBLE,
+                        120, 10, 450,30, hwnd, NULL, hg_app, NULL);
                 break;
             }
         case WM_CTLCOLOREDIT:
