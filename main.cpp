@@ -18,6 +18,10 @@ HWND sHd;
 #define TEXT_W 300
 #define TEXT_H 100
 
+int g_correct=0;
+#define COLOR_CORRECT RGB(0, 0, 255)
+#define COLOR_NOT_CORRECT RGB(255, 0, 0)
+
 char strbuf[128];
 
 /*  Declare Windows procedure  */
@@ -117,7 +121,12 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             printf("WM_CTLCOLOREDIT\r\n");
             if(editHd==(HWND)lParam){
                 printf("my edit\r\n");
-                ::SetTextColor((HDC)wParam, RGB(0,0,255));
+                if(g_correct){
+                    ::SetTextColor((HDC)wParam, COLOR_CORRECT);
+                }
+                else{
+                    ::SetTextColor((HDC)wParam, COLOR_NOT_CORRECT);
+                }
             }
             break;
         case WM_COMMAND:
@@ -135,7 +144,12 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         }
                         if(!strcmp(strbuf, "hello")){
                             printf("hello\r\n");
+                            g_correct=1;
                         }
+                        else{
+                            g_correct=0;
+                        }
+                        InvalidateRect(hwnd,NULL,TRUE);
                     }
 
                     break;
