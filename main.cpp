@@ -11,6 +11,9 @@
 HINSTANCE hg_app;
 HWND editHd;
 HWND sHd;
+#define MY_ID_EDIT 0x3501
+#define MY_ID_BT 0x3502
+char strbuf[128];
 
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -91,19 +94,40 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    printf("-%x %x\r\n", wParam, lParam);
     switch (message)                  /* handle the messages */
     {
         case WM_CREATE:
             printf("created\r\n");
             {
-                editHd = CreateWindow(TEXT("edit"),TEXT("99"),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT,
-                        80, 80, 260, 200, hwnd,(HMENU)3301, hg_app,NULL);
+                editHd = CreateWindow(TEXT("edit"),TEXT("99"),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT|ES_MULTILINE,
+                        80, 80, 260, 200, hwnd,(HMENU)MY_ID_EDIT, hg_app,NULL);
                 CreateWindow("Button", "b1", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        10, 10, 60, 20, hwnd, (HMENU)3302, hg_app, NULL);
+                        10, 10, 60, 20, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
                 sHd = CreateWindow("Static","server ip", SS_SIMPLE | WS_CHILD | WS_VISIBLE,
                         10, 40, 150,20, hwnd, NULL, hg_app, NULL);
                 break;
             }
+        case WM_COMMAND:
+            printf("wmcmd\r\n");
+            switch(LOWORD(wParam))
+            {
+                case MY_ID_EDIT:
+                    if(HIWORD(wParam)==EN_CHANGE){
+                        printf("EN_CHANGE\r\n");
+                        GetWindowText(editHd, strbuf, 128);
+                        printf("%s\r\n", strbuf);
+                    }
+
+                    break;
+                case MY_ID_BT:
+                    printf("button clicked\r\n");
+                    break;
+                default:
+                    printf("unhandled\r\n");
+            }
+
+            break;
         case WM_DESTROY:
             PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
             break;
