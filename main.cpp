@@ -27,6 +27,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     MSG messages;            /* Here messages to the application are saved */
     WNDCLASSEX wincl;        /* Data structure for the windowclass */
 
+    setbuf(stdout, NULL);
     printf("started\r\n");
 
     /* The Window structure */
