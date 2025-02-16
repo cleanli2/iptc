@@ -22,7 +22,10 @@ int g_correct=0;
 #define COLOR_CORRECT RGB(0, 0, 255)
 #define COLOR_NOT_CORRECT RGB(255, 0, 0)
 
-char strbuf[128];
+#define BUFSIZE 128
+
+char strbuf[BUFSIZE];
+char objbuf[BUFSIZE];
 
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -42,6 +45,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     setbuf(stdout, NULL);
     printf("started\r\n");
 
+    memset(strbuf, 0, BUFSIZE);
+    memset(objbuf, 0, BUFSIZE);
     /* The Window structure */
     wincl.hInstance = hThisInstance;
     wincl.lpszClassName = szClassName;
