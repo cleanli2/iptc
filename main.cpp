@@ -123,9 +123,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 break;
             }
         case WM_CTLCOLOREDIT:
-            printf("WM_CTLCOLOREDIT\r\n");
+            //printf("WM_CTLCOLOREDIT\r\n");
             if(editHd==(HWND)lParam){
-                printf("my edit\r\n");
+                //printf("my edit\r\n");
                 if(g_correct){
                     ::SetTextColor((HDC)wParam, COLOR_CORRECT);
                 }
@@ -135,16 +135,16 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             }
             break;
         case WM_COMMAND:
-            printf("wmcmd\r\n");
+            //printf("wmcmd\r\n");
             switch(LOWORD(wParam))
             {
                 case MY_ID_EDIT:
                     if(HIWORD(wParam)==EN_CHANGE){
-                        printf("EN_CHANGE\r\n");
+                        //printf("EN_CHANGE\r\n");
                         GetWindowText(editHd, strbuf, 128);
                         printf("%s\r\n", strbuf);
                         if(strlen(strbuf)>20){
-                            printf("exceed 20\r\n");
+                            //printf("exceed 20\r\n");
                             SetWindowText(editHd, "99");
                         }
                         if(!strcmp(strbuf, "hello")){
