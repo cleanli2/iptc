@@ -22,10 +22,37 @@ int g_correct=0;
 #define COLOR_CORRECT RGB(0, 0, 255)
 #define COLOR_NOT_CORRECT RGB(255, 0, 0)
 
-#define BUFSIZE 128
+#define BUFSIZE 64 
+#define EMPTYLEFT 6
 
-char strbuf[BUFSIZE];
-char objbuf[BUFSIZE];
+char strbuf[BUFSIZE+1];
+char objbuf[BUFSIZE+1]={"我爱中国神州大地伟大的神传文明"};
+
+void dumpstr(char*s)
+{
+    int n=0;
+    while(*s){
+        if((n%16)==0)printf("\r\n%04x: ", n);
+        printf("%02x ", 0xff&(*s));
+        s++;
+        n++;
+    }
+    printf("\r\n");
+}
+
+void str_leftmove(char*s, int n)
+{
+    int l=strlen(s);
+    if(l==0)return;
+    if(l<=n){
+        memset(s, 0, l);
+        return;
+    }
+    for(int i=0;i<l-n;i++){
+        s[i]=s[i+n];
+    }
+    memset(s+l-n, 0, n);
+}
 
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -46,7 +73,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     printf("started\r\n");
 
     memset(strbuf, 0, BUFSIZE);
-    memset(objbuf, 0, BUFSIZE);
+    //memset(objbuf, 0, BUFSIZE);
     /* The Window structure */
     wincl.hInstance = hThisInstance;
     wincl.lpszClassName = szClassName;
@@ -143,11 +170,21 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         //printf("EN_CHANGE\r\n");
                         GetWindowText(editHd, strbuf, 128);
                         printf("%s\r\n", strbuf);
-                        if(strlen(strbuf)>20){
-                            //printf("exceed 20\r\n");
-                            SetWindowText(editHd, "99");
+                        if(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
+                            while(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
+                                if((unsigned char)(0xff&strbuf[0])>(unsigned char)0x80){
+                                    str_leftmove(strbuf, 2);
+                                }
+                                else{
+                                    str_leftmove(strbuf, 1);
+                                }
+                            }
+                            SetWindowText(editHd, strbuf);
+                            SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
                         }
-                        if(!strcmp(strbuf, "hello")){
+                        dumpstr(strbuf);
+                        dumpstr(objbuf);
+                        if(!strncmp(strbuf, objbuf, strlen(strbuf))){
                             printf("hello\r\n");
                             g_correct=1;
                         }
