@@ -26,6 +26,7 @@ int g_correct=0;
 
 #define BUFSIZE 64 
 #define EMPTYLEFT 6
+#define OBJ_EMPTYLEFT 4
 
 FILE* g_fp=NULL;
 char strbuf[BUFSIZE+1];
@@ -89,7 +90,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     memset(strbuf, 0, BUFSIZE);
     memset(objbuf, 0, BUFSIZE);
 
-    fread(objbuf, BUFSIZE-EMPTYLEFT, 1, g_fp);
+    fread(objbuf, BUFSIZE-OBJ_EMPTYLEFT, 1, g_fp);
 
     /* The Window structure */
     wincl.hInstance = hThisInstance;
@@ -201,7 +202,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                             }
                             SetWindowText(editHd, strbuf);
                             SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
-                            while(strlen(objbuf)<(BUFSIZE-EMPTYLEFT)){
+                            while(strlen(objbuf)<(BUFSIZE-OBJ_EMPTYLEFT)){
                                 bc=fgetc(g_fp);
                                 if(EOF==bc){
                                     printf("endof file\r\n");
@@ -217,8 +218,11 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         printf("objshow:\r\n");
                         dumpstr(objbuf);
                         if(!strncmp(strbuf, objbuf, strlen(strbuf))){
-                            printf("hello\r\n");
+                            printf("strcmp correct\r\n");
                             g_correct=1;
+                            if(strlen(objbuf)==(BUFSIZE-OBJ_EMPTYLEFT)){
+                                if(objbuf[strlen(
+                            }
                         }
                         else{
                             g_correct=0;
