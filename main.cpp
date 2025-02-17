@@ -18,6 +18,8 @@ HWND sHd;
 #define TEXT_W 300
 #define TEXT_H 100
 
+char tc[2];
+int bc;
 int g_correct=0;
 #define COLOR_CORRECT RGB(0, 0, 255)
 #define COLOR_NOT_CORRECT RGB(255, 0, 0)
@@ -25,13 +27,14 @@ int g_correct=0;
 #define BUFSIZE 64 
 #define EMPTYLEFT 6
 
+FILE* g_fp=NULL;
 char strbuf[BUFSIZE+1];
-char objbuf[BUFSIZE+1]={"我爱中国神州大地伟大的神传文明"};
+char objbuf[BUFSIZE+1]={0};
 
 void dumpstr(char*s)
 {
     int n=0;
-    while(*s){
+    while(*s||n<16){
         if((n%16)==0)printf("\r\n%04x: ", n);
         printf("%02x ", 0xff&(*s));
         s++;
@@ -72,8 +75,22 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     setbuf(stdout, NULL);
     printf("started\r\n");
 
+    g_fp=fopen("book.txt", "r");
+
+    if(!g_fp){
+        printf("open book.txt failed\r\n");
+        MessageBox(NULL, _T("打开book.txt失败，退出！"), _T("提示"),MB_OK);
+        return -1;
+    }
+    else{
+        printf("open ok\r\n");
+    }
+
     memset(strbuf, 0, BUFSIZE);
-    //memset(objbuf, 0, BUFSIZE);
+    memset(objbuf, 0, BUFSIZE);
+
+    fread(objbuf, BUFSIZE-EMPTYLEFT, 1, g_fp);
+
     /* The Window structure */
     wincl.hInstance = hThisInstance;
     wincl.lpszClassName = szClassName;
@@ -124,6 +141,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
         DispatchMessage(&messages);
     }
 
+    fclose(g_fp);
     printf("end\r\n");
 
     /* The program return-value is 0 - The value that PostQuitMessage() gave */
@@ -174,15 +192,29 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                             while(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
                                 if((unsigned char)(0xff&strbuf[0])>(unsigned char)0x80){
                                     str_leftmove(strbuf, 2);
+                                    str_leftmove(objbuf, 2);
                                 }
                                 else{
                                     str_leftmove(strbuf, 1);
+                                    str_leftmove(objbuf, 1);
                                 }
                             }
                             SetWindowText(editHd, strbuf);
                             SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
+                            while(strlen(objbuf)<(BUFSIZE-EMPTYLEFT)){
+                                bc=fgetc(g_fp);
+                                if(EOF==bc){
+                                    printf("endof file\r\n");
+                                    break;
+                                }
+                                tc[0]=bc&0xff;
+                                tc[1]=0;
+                                strcat(objbuf, tc);
+                            }
                         }
+                        printf("strshow:\r\n");
                         dumpstr(strbuf);
+                        printf("objshow:\r\n");
                         dumpstr(objbuf);
                         if(!strncmp(strbuf, objbuf, strlen(strbuf))){
                             printf("hello\r\n");
