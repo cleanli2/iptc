@@ -235,7 +235,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         20, 50, TEXT_W, TEXT_H, hwnd,(HMENU)MY_ID_EDIT, hg_app,NULL);
                 CreateWindow("Button", "重来", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         10, 10, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
-                sHd = CreateWindow("Static","没有开始", SS_SIMPLE | WS_CHILD | WS_VISIBLE,
+                sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
+                        cur_size, g_filesize, cur_size*100/g_filesize);
+                sHd = CreateWindow("Static",stext_buf, SS_SIMPLE | WS_CHILD | WS_VISIBLE,
                         120, 10, 450,30, hwnd, NULL, hg_app, NULL);
                 break;
             }
