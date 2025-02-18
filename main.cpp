@@ -77,7 +77,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     setbuf(stdout, NULL);
     printf("started\r\n");
 
-    g_fp=fopen("book.txt", "r");
+    g_fp=fopen("book.txt", "rb");
 
     if(!g_fp){
         printf("open book.txt failed\r\n");
@@ -154,6 +154,7 @@ void makeup_obj()
 {
     while(strlen(objbuf)<(BUFSIZE-OBJ_EMPTYLEFT)){
         bc=fgetc(g_fp);
+        printf("bc=0x%x\r\n", bc);
         if(EOF==bc){
             printf("endof file\r\n");
             break;
