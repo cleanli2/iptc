@@ -18,7 +18,7 @@ HWND sHd;
 #define TEXT_W 300
 #define TEXT_H 100
 
-char tc[2];
+char tc[3];
 int bc;
 int g_correct=0;
 #define COLOR_CORRECT RGB(0, 0, 255)
@@ -32,8 +32,9 @@ FILE* g_fp=NULL;
 char strbuf[BUFSIZE+1];
 char objbuf[BUFSIZE+1]={0};
 
-void dumpstr(char*s)
+void dumpstr(void*is)
 {
+    char*s=(char*)is;
     int n=0;
     while(*s||n<16){
         if((n%16)==0)printf("\r\n%04x: ", n);
@@ -149,6 +150,36 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     return messages.wParam;
 }
 
+void makeup_obj()
+{
+    while(strlen(objbuf)<(BUFSIZE-OBJ_EMPTYLEFT)){
+        bc=fgetc(g_fp);
+        if(EOF==bc){
+            printf("endof file\r\n");
+            break;
+        }
+        tc[0]=bc&0xff;
+        tc[1]=0;
+        strcat(objbuf, tc);
+    }
+}
+
+unsigned char autofill[]={"£¬¡££»¡ý¡¢£¡£¿£º¡­¡¶¡·¡¡£¨£©¡°¡±¡ª"};
+int need_autofill(char*s)
+{
+    dumpstr(s);
+    dumpstr(autofill);
+    if(s[0]==0xd && s[1]==0xa)return 1;
+    for(int i=0;i<sizeof(autofill);i+=2){
+        if(((unsigned char)s[0]==autofill[i])&&((unsigned char)s[1]==autofill[i+1])){
+            printf("autofill\r\n");
+            return 1;
+        }
+    }
+    printf("no need autofill\r\n");
+    return 0;
+
+}
 
 /*  This function is called by the Windows function DispatchMessage()  */
 
@@ -200,33 +231,33 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                                     str_leftmove(objbuf, 1);
                                 }
                             }
-                            SetWindowText(editHd, strbuf);
-                            SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
-                            while(strlen(objbuf)<(BUFSIZE-OBJ_EMPTYLEFT)){
-                                bc=fgetc(g_fp);
-                                if(EOF==bc){
-                                    printf("endof file\r\n");
-                                    break;
-                                }
-                                tc[0]=bc&0xff;
-                                tc[1]=0;
-                                strcat(objbuf, tc);
-                            }
+                            makeup_obj();
                         }
                         printf("strshow:\r\n");
                         dumpstr(strbuf);
                         printf("objshow:\r\n");
                         dumpstr(objbuf);
                         if(!strncmp(strbuf, objbuf, strlen(strbuf))){
+                            int sbl=strlen(strbuf);
                             printf("strcmp correct\r\n");
                             g_correct=1;
                             if(strlen(objbuf)==(BUFSIZE-OBJ_EMPTYLEFT)){
-                                if(objbuf[strlen(
+                                while(need_autofill(&objbuf[sbl])){
+                                    tc[0]=objbuf[sbl];
+                                    tc[1]=objbuf[sbl+1];
+                                    tc[2]=0;
+                                    str_leftmove(strbuf, 2);
+                                    str_leftmove(objbuf, 2);
+                                    strcat(strbuf, tc);
+                                    makeup_obj();
+                                }
                             }
                         }
                         else{
                             g_correct=0;
                         }
+                        SetWindowText(editHd, strbuf);
+                        SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
                         InvalidateRect(hwnd,NULL,TRUE);
                     }
 
