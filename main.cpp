@@ -80,6 +80,17 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     setbuf(stdout, NULL);
     printf("started\r\n");
+    
+    //open save
+    g_fp=fopen("save", "rb");
+    if(!g_fp){
+        printf("open save failed\r\n");
+    }
+    else{
+        fread(&cur_size, sizeof(cur_size), 1, g_fp);
+        printf("open save ok=%d\r\n", cur_size);
+        fclose(g_fp);
+    }
 
     g_fp=fopen("book.txt", "rb");
 
@@ -94,6 +105,10 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     memset(strbuf, 0, BUFSIZE);
     memset(objbuf, 0, BUFSIZE);
+
+    if(cur_size!=0){
+        fseek(g_fp, cur_size, SEEK_SET);
+    }
 
     if(stat("book.txt", &fstat)<0){
         printf("get book.txt filesize failed\r\n");
@@ -157,6 +172,18 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     fclose(g_fp);
     printf("end\r\n");
+
+    //save
+    g_fp=fopen("save", "wb");
+    if(!g_fp){
+        printf("save failed\r\n");
+        MessageBox(NULL, _T("保存失败，退出！"), _T("提示"),MB_OK);
+    }
+    else{
+        printf("open save ok\r\n");
+    }
+    fwrite(&cur_size, sizeof(cur_size), 1, g_fp);
+    fclose(g_fp);
 
     /* The program return-value is 0 - The value that PostQuitMessage() gave */
     return messages.wParam;
@@ -265,16 +292,16 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                                     makeup_obj();
                                 }
                             }
+                            cur_size=ftell(g_fp)-(strlen(objbuf)-strlen(strbuf));
+                            sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
+                                    cur_size, g_filesize, cur_size*100/g_filesize);
+                            SetWindowText(sHd, stext_buf);
                         }
                         else{
                             g_correct=0;
                         }
                         SetWindowText(editHd, strbuf);
                         SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
-                        cur_size=ftell(g_fp)-(strlen(objbuf)-strlen(strbuf));
-                        sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
-                                cur_size, g_filesize, cur_size*100/g_filesize);
-                        SetWindowText(sHd, stext_buf);
                         InvalidateRect(hwnd,NULL,TRUE);
                     }
 
