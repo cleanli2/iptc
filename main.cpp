@@ -18,6 +18,7 @@ HWND sHd;
 #define MY_ID_BT 0x3502
 #define TEXT_W 500
 #define TEXT_H 100
+#define HINT_SIZE 10
 
 char tc[3];
 int bc;
@@ -105,6 +106,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     memset(strbuf, 0, BUFSIZE);
     memset(objbuf, 0, BUFSIZE);
+
+    if(cur_size>g_filesize)cur_size=g_filesize;
 
     if(cur_size!=0){
         fseek(g_fp, cur_size, SEEK_SET);
