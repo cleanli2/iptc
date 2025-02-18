@@ -7,6 +7,7 @@
 #include <tchar.h>
 #include <windows.h>
 #include <cstdio>
+#include <sys/stat.h>
 
 //#pragma comment(lib, "ws2_32.lib")
 
@@ -15,7 +16,7 @@ HWND editHd;
 HWND sHd;
 #define MY_ID_EDIT 0x3501
 #define MY_ID_BT 0x3502
-#define TEXT_W 300
+#define TEXT_W 500
 #define TEXT_H 100
 
 char tc[3];
@@ -31,6 +32,8 @@ int g_correct=0;
 FILE* g_fp=NULL;
 char strbuf[BUFSIZE+1];
 char objbuf[BUFSIZE+1]={0};
+char stext_buf[50];
+int cur_size=0, g_filesize=0;
 
 void dumpstr(void*is)
 {
@@ -73,6 +76,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     HWND hwnd;               /* This is the handle for our window */
     MSG messages;            /* Here messages to the application are saved */
     WNDCLASSEX wincl;        /* Data structure for the windowclass */
+    struct stat fstat;
 
     setbuf(stdout, NULL);
     printf("started\r\n");
@@ -90,6 +94,14 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     memset(strbuf, 0, BUFSIZE);
     memset(objbuf, 0, BUFSIZE);
+
+    if(stat("book.txt", &fstat)<0){
+        printf("get book.txt filesize failed\r\n");
+        MessageBox(NULL, _T("获取book.txt大小失败，退出！"), _T("提示"),MB_OK);
+        return -1;
+    }
+    g_filesize=fstat.st_size;
+    printf("filesize=%d\r\n", g_filesize);
 
     fread(objbuf, BUFSIZE-OBJ_EMPTYLEFT, 1, g_fp);
 
@@ -259,6 +271,10 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         }
                         SetWindowText(editHd, strbuf);
                         SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
+                        cur_size=ftell(g_fp)-(strlen(objbuf)-strlen(strbuf));
+                        sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
+                                cur_size, g_filesize, cur_size*100/g_filesize);
+                        SetWindowText(sHd, stext_buf);
                         InvalidateRect(hwnd,NULL,TRUE);
                     }
 
