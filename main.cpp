@@ -38,6 +38,12 @@ char objbuf[BUFSIZE+1]={0};
 char stext_buf[50];
 int cur_size=0, g_filesize=0;
 
+void csa_init()
+{
+    for (int i=0;i<HINT_SIZE;i++){
+        csa[i]=-1;
+    }
+}
 void print_csa()
 {
     printf("csa:\r\n");
@@ -154,6 +160,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     memset(strbuf, 0, BUFSIZE);
     memset(objbuf, 0, BUFSIZE);
+
+    csa_init();
 
     if(cur_size>g_filesize)cur_size=g_filesize;
 
