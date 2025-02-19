@@ -28,7 +28,7 @@ int g_correct=0;
 #define COLOR_CORRECT RGB(0, 0, 255)
 #define COLOR_NOT_CORRECT RGB(255, 0, 0)
 
-#define BUFSIZE 64 
+#define BUFSIZE 192
 #define EMPTYLEFT 6
 #define OBJ_EMPTYLEFT 4
 
