@@ -49,6 +49,16 @@ void print_csa()
 
 void put_csa(int cz)
 {
+    int cur;
+    if(csap==0){
+        cur=csa[HINT_SIZE-1];
+    }
+    else{
+        cur=csa[csap-1];
+    }
+    if(cur==cz){
+        return;
+    }
     if(csap>(HINT_SIZE-1)){
         csap=0;
     }
@@ -62,12 +72,6 @@ int get_csa()
     int geti;
     printf("get_csa\r\n");
     print_csa();
-    if(csap>(HINT_SIZE-1)){
-        geti=0;
-    }
-    else{
-        geti=csap+1;
-    }
     return csa[geti];
 }
 
@@ -162,7 +166,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     int tmpj=0;
     put_csa(cur_size);
-    for (int i=0;i<HINT_SIZE;i++){
+    for (int i=0;i<HINT_SIZE-1;i++){
         strbuf[tmpj]=objbuf[tmpj];
         cur_size++;
         tmpj++;
@@ -266,7 +270,10 @@ int need_autofill(char*s)
 {
     dumpstr(s);
     dumpstr(autofill);
-    if(s[0]==0xd && s[1]==0xa)return 1;
+    if(s[0]==0xd && s[1]==0xa){
+        printf("autofill 0d0a\r\n");
+        return 1;
+    }
     for(int i=0;i<sizeof(autofill);i+=2){
         if(((unsigned char)s[0]==autofill[i])&&((unsigned char)s[1]==autofill[i+1])){
             printf("autofill\r\n");
