@@ -128,12 +128,12 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     printf("started\r\n");
     
     //open save
-    g_fp=fopen("save", "rb");
+    g_fp=fopen("save", "r");
     if(!g_fp){
         printf("open save failed\r\n");
     }
     else{
-        fread(&cur_size, sizeof(cur_size), 1, g_fp);
+        fscanf(g_fp, "%d", &cur_size);
         printf("open save ok=%d\r\n", cur_size);
         fclose(g_fp);
     }
@@ -244,7 +244,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     //save
     printf("cur=%d before exit\r\n", cur_size);
     cur_size = get_csa();
-    g_fp=fopen("save", "wb");
+    g_fp=fopen("save", "w");
     if(!g_fp){
         printf("save failed\r\n");
         MessageBox(NULL, _T("保存失败，退出！"), _T("提示"),MB_OK);
@@ -252,7 +252,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     else{
         printf("open save ok=%d\r\n", cur_size);
     }
-    fwrite(&cur_size, sizeof(cur_size), 1, g_fp);
+    fprintf(g_fp, "%d", cur_size);
     fclose(g_fp);
 
     /* The program return-value is 0 - The value that PostQuitMessage() gave */
