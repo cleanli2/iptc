@@ -46,7 +46,7 @@ void csa_init()
 }
 void print_csa()
 {
-    printf("csa:\r\n");
+    printf("csa:%d\r\n", csap);
     for(int i=0;i<HINT_SIZE;i++){
         printf("%d ", csa[i]);
     }
@@ -75,10 +75,10 @@ void put_csa(int cz)
 
 int get_csa()
 {
-    int geti;
     printf("get_csa\r\n");
     print_csa();
-    return csa[geti];
+    if(csap==HINT_SIZE)return csa[0];
+    else return csa[csap];
 }
 
 void dumpstr(void*is)
@@ -172,13 +172,14 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     fread(objbuf, BUFSIZE-OBJ_EMPTYLEFT, 1, g_fp);
 
-    int tmpj=0;
+    int tmpj=0, tmpv;
     put_csa(cur_size);
     for (int i=0;i<HINT_SIZE-1;i++){
-        strbuf[tmpj]=objbuf[tmpj];
+        tmpv=strbuf[tmpj]=objbuf[tmpj];
         cur_size++;
         tmpj++;
-        if((unsigned char)objbuf[tmpj]>0x80 || objbuf[tmpj]==0xd){
+        printf("tmpv=%x\r\n", tmpv);
+        if((unsigned char)tmpv>0x80 || ((unsigned char)tmpv&0xff)==0xd){
             strbuf[tmpj]=objbuf[tmpj];
             cur_size++;
             tmpj++;
