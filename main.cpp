@@ -20,6 +20,8 @@ HWND sHd;
 #define TEXT_H 100
 #define HINT_SIZE 10
 
+int csa[HINT_SIZE];
+int csap=0;
 char tc[3];
 int bc;
 int g_correct=0;
@@ -35,6 +37,39 @@ char strbuf[BUFSIZE+1];
 char objbuf[BUFSIZE+1]={0};
 char stext_buf[50];
 int cur_size=0, g_filesize=0;
+
+void print_csa()
+{
+    printf("csa:\r\n");
+    for(int i=0;i<HINT_SIZE;i++){
+        printf("%d ", csa[i]);
+    }
+    printf("csa:end\r\n");
+}
+
+void put_csa(int cz)
+{
+    if(csap>(HINT_SIZE-1)){
+        csap=0;
+    }
+    csa[csap++]=cz;
+    printf("put_csa\r\n");
+    print_csa();
+}
+
+int get_csa()
+{
+    int geti;
+    printf("get_csa\r\n");
+    print_csa();
+    if(csap>(HINT_SIZE-1)){
+        geti=0;
+    }
+    else{
+        geti=csap+1;
+    }
+    return csa[geti];
+}
 
 void dumpstr(void*is)
 {
@@ -104,6 +139,15 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
         printf("open ok\r\n");
     }
 
+    if(stat("book.txt", &fstat)<0){
+        printf("get book.txt filesize failed\r\n");
+        MessageBox(NULL, _T("获取book.txt大小失败，退出！"), _T("提示"),MB_OK);
+        return -1;
+    }
+
+    g_filesize=fstat.st_size;
+    printf("filesize=%d\r\n", g_filesize);
+
     memset(strbuf, 0, BUFSIZE);
     memset(objbuf, 0, BUFSIZE);
 
@@ -112,16 +156,24 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     if(cur_size!=0){
         fseek(g_fp, cur_size, SEEK_SET);
     }
-
-    if(stat("book.txt", &fstat)<0){
-        printf("get book.txt filesize failed\r\n");
-        MessageBox(NULL, _T("获取book.txt大小失败，退出！"), _T("提示"),MB_OK);
-        return -1;
-    }
-    g_filesize=fstat.st_size;
-    printf("filesize=%d\r\n", g_filesize);
+    printf("cur %d ftell:%d\r\n", cur_size, ftell(g_fp));
 
     fread(objbuf, BUFSIZE-OBJ_EMPTYLEFT, 1, g_fp);
+
+    int tmpj=0;
+    put_csa(cur_size);
+    for (int i=0;i<HINT_SIZE;i++){
+        strbuf[tmpj]=objbuf[tmpj];
+        cur_size++;
+        tmpj++;
+        if((unsigned char)objbuf[tmpj]>0x80 || objbuf[tmpj]==0xd){
+            strbuf[tmpj]=objbuf[tmpj];
+            cur_size++;
+            tmpj++;
+        }
+        put_csa(cur_size);
+    }
+    printf("cursize=%d after hint\r\n", cur_size);
 
     /* The Window structure */
     wincl.hInstance = hThisInstance;
@@ -177,13 +229,15 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     printf("end\r\n");
 
     //save
+    printf("cur=%d before exit\r\n", cur_size);
+    cur_size = get_csa();
     g_fp=fopen("save", "wb");
     if(!g_fp){
         printf("save failed\r\n");
         MessageBox(NULL, _T("保存失败，退出！"), _T("提示"),MB_OK);
     }
     else{
-        printf("open save ok\r\n");
+        printf("open save ok=%d\r\n", cur_size);
     }
     fwrite(&cur_size, sizeof(cur_size), 1, g_fp);
     fclose(g_fp);
@@ -224,6 +278,33 @@ int need_autofill(char*s)
 
 }
 
+void do_compare()
+{
+    if(!strncmp(strbuf, objbuf, strlen(strbuf))){
+        int sbl=strlen(strbuf);
+        printf("strcmp correct\r\n");
+        g_correct=1;
+        if(strlen(objbuf)==(BUFSIZE-OBJ_EMPTYLEFT)){
+            while(need_autofill(&objbuf[sbl])){
+                tc[0]=objbuf[sbl];
+                tc[1]=objbuf[sbl+1];
+                tc[2]=0;
+                str_leftmove(strbuf, 2);
+                str_leftmove(objbuf, 2);
+                strcat(strbuf, tc);
+                makeup_obj();
+            }
+        }
+        cur_size=ftell(g_fp)-(strlen(objbuf)-strlen(strbuf));
+        put_csa(cur_size);
+        sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
+                cur_size, g_filesize, cur_size*100/g_filesize);
+    }
+    else{
+        g_correct=0;
+    }
+}
+
 /*  This function is called by the Windows function DispatchMessage()  */
 
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -234,7 +315,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         case WM_CREATE:
             printf("created\r\n");
             {
-                editHd = CreateWindow(TEXT("edit"),TEXT(""),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT|ES_MULTILINE,
+                do_compare();
+                editHd = CreateWindow(TEXT("edit"),TEXT(strbuf),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT|ES_MULTILINE,
                         20, 50, TEXT_W, TEXT_H, hwnd,(HMENU)MY_ID_EDIT, hg_app,NULL);
                 CreateWindow("Button", "重来", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         10, 10, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
@@ -282,29 +364,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         dumpstr(strbuf);
                         printf("objshow:\r\n");
                         dumpstr(objbuf);
-                        if(!strncmp(strbuf, objbuf, strlen(strbuf))){
-                            int sbl=strlen(strbuf);
-                            printf("strcmp correct\r\n");
-                            g_correct=1;
-                            if(strlen(objbuf)==(BUFSIZE-OBJ_EMPTYLEFT)){
-                                while(need_autofill(&objbuf[sbl])){
-                                    tc[0]=objbuf[sbl];
-                                    tc[1]=objbuf[sbl+1];
-                                    tc[2]=0;
-                                    str_leftmove(strbuf, 2);
-                                    str_leftmove(objbuf, 2);
-                                    strcat(strbuf, tc);
-                                    makeup_obj();
-                                }
-                            }
-                            cur_size=ftell(g_fp)-(strlen(objbuf)-strlen(strbuf));
-                            sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
-                                    cur_size, g_filesize, cur_size*100/g_filesize);
-                            SetWindowText(sHd, stext_buf);
-                        }
-                        else{
-                            g_correct=0;
-                        }
+                        do_compare();
+                        SetWindowText(sHd, stext_buf);
                         SetWindowText(editHd, strbuf);
                         SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
                         InvalidateRect(hwnd,NULL,TRUE);
