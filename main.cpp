@@ -305,8 +305,10 @@ void do_compare()
                 tc[0]=objbuf[sbl];
                 tc[1]=objbuf[sbl+1];
                 tc[2]=0;
-                str_leftmove(strbuf, 2);
-                str_leftmove(objbuf, 2);
+                while(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
+                    str_leftmove(strbuf, 2);
+                    str_leftmove(objbuf, 2);
+                }
                 strcat(strbuf, tc);
                 makeup_obj();
             }
