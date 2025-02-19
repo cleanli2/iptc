@@ -310,6 +310,7 @@ void do_compare()
                     str_leftmove(objbuf, 2);
                 }
                 strcat(strbuf, tc);
+                sbl=strlen(strbuf);
                 makeup_obj();
             }
         }
@@ -377,6 +378,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                                 }
                             }
                             makeup_obj();
+                            printf("strlen strbuf=%d, max %d\r\n", strlen(strbuf), (BUFSIZE-EMPTYLEFT));
                         }
                         printf("strshow:\r\n");
                         dumpstr(strbuf);
