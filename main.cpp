@@ -363,10 +363,12 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             {
                 case MY_ID_EDIT:
                     if(HIWORD(wParam)==EN_CHANGE){
-                        //printf("EN_CHANGE\r\n");
-                        GetWindowText(editHd, strbuf, 128);
+                        printf("EN_CHANGE\r\n");
+                        GetWindowText(editHd, strbuf, BUFSIZE);
                         printf("%s\r\n", strbuf);
+                        printf("len %d, max %d\r\n", strlen(strbuf), BUFSIZE-EMPTYLEFT);
                         if(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
+                            printf("need left move\r\n");
                             while(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
                                 if((unsigned char)(0xff&strbuf[0])>(unsigned char)0x80){
                                     str_leftmove(strbuf, 2);
@@ -389,6 +391,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         SetWindowText(editHd, strbuf);
                         SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
                         InvalidateRect(hwnd,NULL,TRUE);
+                    }
+                    else if(EN_MAXTEXT==HIWORD(wParam)){
+                        printf("max!!!\r\n");
                     }
 
                     break;
