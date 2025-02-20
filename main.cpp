@@ -41,6 +41,7 @@ int cur_size=0, g_filesize=0;
 
 void csa_init()
 {
+    csap=0;
     for (int i=0;i<HINT_SIZE;i++){
         csa[i]=-1;
     }
@@ -115,6 +116,39 @@ LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
 /*  Make the class name into a global variable  */
 TCHAR szClassName[ ] = _T("CodeBlocksWindowsApp");
 
+void do_iptc_init()
+{
+    memset(strbuf, 0, BUFSIZE);
+    memset(objbuf, 0, BUFSIZE);
+
+    csa_init();
+
+    if(cur_size>g_filesize)cur_size=g_filesize;
+
+    if(cur_size!=0){
+        fseek(g_fp, cur_size, SEEK_SET);
+    }
+    printf("cur %d ftell:%d\r\n", cur_size, ftell(g_fp));
+
+    fread(objbuf, BUFSIZE-OBJ_EMPTYLEFT, 1, g_fp);
+
+    int tmpj=0, tmpv;
+    put_csa(cur_size);
+    for (int i=0;i<HINT_SIZE-1;i++){
+        tmpv=strbuf[tmpj]=objbuf[tmpj];
+        cur_size++;
+        tmpj++;
+        printf("tmpv=%x\r\n", tmpv);
+        if((unsigned char)tmpv>0x80 || ((unsigned char)tmpv&0xff)==0xd){
+            strbuf[tmpj]=objbuf[tmpj];
+            cur_size++;
+            tmpj++;
+        }
+        put_csa(cur_size);
+    }
+    printf("cursize=%d after hint\r\n", cur_size);
+}
+
 int WINAPI WinMain (HINSTANCE hThisInstance,
                      HINSTANCE hPrevInstance,
                      LPSTR lpszArgument,
@@ -159,35 +193,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     g_filesize=fstat.st_size;
     printf("filesize=%d\r\n", g_filesize);
 
-    memset(strbuf, 0, BUFSIZE);
-    memset(objbuf, 0, BUFSIZE);
-
-    csa_init();
-
-    if(cur_size>g_filesize)cur_size=g_filesize;
-
-    if(cur_size!=0){
-        fseek(g_fp, cur_size, SEEK_SET);
-    }
-    printf("cur %d ftell:%d\r\n", cur_size, ftell(g_fp));
-
-    fread(objbuf, BUFSIZE-OBJ_EMPTYLEFT, 1, g_fp);
-
-    int tmpj=0, tmpv;
-    put_csa(cur_size);
-    for (int i=0;i<HINT_SIZE-1;i++){
-        tmpv=strbuf[tmpj]=objbuf[tmpj];
-        cur_size++;
-        tmpj++;
-        printf("tmpv=%x\r\n", tmpv);
-        if((unsigned char)tmpv>0x80 || ((unsigned char)tmpv&0xff)==0xd){
-            strbuf[tmpj]=objbuf[tmpj];
-            cur_size++;
-            tmpj++;
-        }
-        put_csa(cur_size);
-    }
-    printf("cursize=%d after hint\r\n", cur_size);
+    do_iptc_init();
 
     /* The Window structure */
     wincl.hInstance = hThisInstance;
@@ -405,6 +411,12 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
                     break;
                 case MY_ID_BT:
+                    cur_size=0;
+                    do_iptc_init();
+                    do_compare();
+                    EnableWindow(editHd, true);
+                    SetWindowText(sHd, stext_buf);
+                    SetWindowText(editHd, strbuf);
                     printf("button clicked\r\n");
                     break;
                 default:
