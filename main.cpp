@@ -412,6 +412,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     break;
                 case MY_ID_BT:
                     cur_size=0;
+                    fseek(g_fp, cur_size, SEEK_SET);
                     do_iptc_init();
                     do_compare();
                     EnableWindow(editHd, true);
