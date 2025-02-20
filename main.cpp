@@ -20,6 +20,7 @@ HWND sHd;
 #define TEXT_H 100
 #define HINT_SIZE 10
 
+int end_of_file=0;
 int csa[HINT_SIZE];
 int csap=0;
 char tc[3];
@@ -261,11 +262,12 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
 void makeup_obj()
 {
-    while(strlen(objbuf)<(BUFSIZE-OBJ_EMPTYLEFT)){
+    while(!end_of_file && strlen(objbuf)<(BUFSIZE-OBJ_EMPTYLEFT)){
         bc=fgetc(g_fp);
         printf("bc=0x%x\r\n", bc);
         if(EOF==bc){
             printf("endof file\r\n");
+            end_of_file=1;
             break;
         }
         tc[0]=bc&0xff;
@@ -369,7 +371,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         printf("len %d, max %d\r\n", strlen(strbuf), BUFSIZE-EMPTYLEFT);
                         if(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
                             printf("need left move\r\n");
-                            while(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
+                            while(!end_of_file && strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
                                 if((unsigned char)(0xff&strbuf[0])>(unsigned char)0x80){
                                     str_leftmove(strbuf, 2);
                                     str_leftmove(objbuf, 2);
@@ -391,6 +393,10 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         SetWindowText(editHd, strbuf);
                         SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
                         InvalidateRect(hwnd,NULL,TRUE);
+                        printf("end of file.\r\n");
+                        if(end_of_file){
+                            MessageBox(NULL, _T("恭喜！已完成。"), _T("提示"),MB_OK);
+                        }
                     }
                     else if(EN_MAXTEXT==HIWORD(wParam)){
                         printf("max!!!\r\n");
