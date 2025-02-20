@@ -281,13 +281,14 @@ int need_autofill(char*s)
 {
     dumpstr(s);
     dumpstr(autofill);
+    if(s[0]==0)return 0;
     if(s[0]==0xd && s[1]==0xa){
         printf("autofill 0d0a\r\n");
         return 1;
     }
     for(int i=0;i<sizeof(autofill);i+=2){
         if(((unsigned char)s[0]==autofill[i])&&((unsigned char)s[1]==autofill[i+1])){
-            printf("autofill\r\n");
+            printf("autofill i=%d\r\n", i);
             return 1;
         }
     }
@@ -393,8 +394,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
                         InvalidateRect(hwnd,NULL,TRUE);
                         printf("end of file.\r\n");
-                        if(end_of_file){
+                        if(end_of_file && cur_size==g_filesize){
                             MessageBox(NULL, _T("恭喜！已完成。"), _T("提示"),MB_OK);
+                            EnableWindow(editHd, false);
                         }
                     }
                     else if(EN_MAXTEXT==HIWORD(wParam)){
