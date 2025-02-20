@@ -302,19 +302,18 @@ void do_compare()
         int sbl=strlen(strbuf);
         printf("strcmp correct\r\n");
         g_correct=1;
-        if(strlen(objbuf)==(BUFSIZE-OBJ_EMPTYLEFT)){
-            while(need_autofill(&objbuf[sbl])){
-                tc[0]=objbuf[sbl];
-                tc[1]=objbuf[sbl+1];
-                tc[2]=0;
-                while(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
-                    str_leftmove(strbuf, 2);
-                    str_leftmove(objbuf, 2);
-                }
-                strcat(strbuf, tc);
-                sbl=strlen(strbuf);
-                makeup_obj();
+        printf("objlen %d vs %d\r\n", strlen(objbuf), BUFSIZE-OBJ_EMPTYLEFT);
+        while(need_autofill(&objbuf[sbl])){
+            tc[0]=objbuf[sbl];
+            tc[1]=objbuf[sbl+1];
+            tc[2]=0;
+            while(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
+                str_leftmove(strbuf, 2);
+                str_leftmove(objbuf, 2);
             }
+            strcat(strbuf, tc);
+            sbl=strlen(strbuf);
+            makeup_obj();
         }
         cur_size=ftell(g_fp)-(strlen(objbuf)-strlen(strbuf));
         put_csa(cur_size);
