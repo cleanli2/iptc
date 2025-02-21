@@ -329,6 +329,7 @@ void do_compare()
             tc[0]=objbuf[sbl];
             tc[1]=objbuf[sbl+1];
             tc[2]=0;
+            printf("len %d vs %d\r\n", strlen(strbuf), BUFSIZE-EMPTYLEFT);
             while(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
                 str_leftmove(strbuf, 2);
                 str_leftmove(objbuf, 2);
