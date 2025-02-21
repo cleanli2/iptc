@@ -284,6 +284,20 @@ void makeup_obj()
     printf("end=%d objlen %d vs %d\r\n", end_of_file, strlen(objbuf), BUFSIZE-OBJ_EMPTYLEFT);
 }
 
+void if_end()
+{
+    if(ftell(g_fp)==g_filesize){
+        end_of_file=1;
+    }
+    printf("end of file %d cursize=%d gfsz %d.\r\n",
+            end_of_file, cur_size, g_filesize);
+    if(end_of_file && cur_size==g_filesize){
+        printf("end of file.\r\n");
+        MessageBox(NULL, _T("恭喜！已完成。"), _T("提示"),MB_OK);
+        EnableWindow(editHd, false);
+    }
+}
+
 unsigned char autofill[]={"，。；↓、！？：…《》　（）“”—"};
 int need_autofill(char*s)
 {
@@ -352,6 +366,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         cur_size, g_filesize, cur_size*100/g_filesize);
                 sHd = CreateWindow("Static",stext_buf, SS_SIMPLE | WS_CHILD | WS_VISIBLE,
                         120, 10, 450,30, hwnd, NULL, hg_app, NULL);
+                if_end();
                 break;
             }
         case WM_CTLCOLOREDIT:
@@ -400,13 +415,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         SetWindowText(editHd, strbuf);
                         SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
                         InvalidateRect(hwnd,NULL,TRUE);
-                        printf("end of file %d cursize=%d gfsz %d.\r\n",
-                                end_of_file, cur_size, g_filesize);
-                        if(end_of_file && cur_size==g_filesize){
-                            printf("end of file.\r\n");
-                            MessageBox(NULL, _T("恭喜！已完成。"), _T("提示"),MB_OK);
-                            EnableWindow(editHd, false);
-                        }
+                        if_end();
                     }
                     else if(EN_MAXTEXT==HIWORD(wParam)){
                         printf("max!!!\r\n");
