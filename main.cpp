@@ -268,6 +268,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
 void makeup_obj()
 {
+    printf("end=%d objlen %d vs %d\r\n", end_of_file, strlen(objbuf), BUFSIZE-OBJ_EMPTYLEFT);
     while(!end_of_file && strlen(objbuf)<(BUFSIZE-OBJ_EMPTYLEFT)){
         bc=fgetc(g_fp);
         printf("bc=0x%x\r\n", bc);
@@ -309,7 +310,6 @@ void do_compare()
         int sbl=strlen(strbuf);
         printf("strcmp correct\r\n");
         g_correct=1;
-        printf("objlen %d vs %d\r\n", strlen(objbuf), BUFSIZE-OBJ_EMPTYLEFT);
         while(need_autofill(&objbuf[sbl])){
             tc[0]=objbuf[sbl];
             tc[1]=objbuf[sbl+1];
@@ -399,8 +399,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         SetWindowText(editHd, strbuf);
                         SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
                         InvalidateRect(hwnd,NULL,TRUE);
-                        printf("end of file.\r\n");
                         if(end_of_file && cur_size==g_filesize){
+                            printf("end of file.\r\n");
                             MessageBox(NULL, _T("恭喜！已完成。"), _T("提示"),MB_OK);
                             EnableWindow(editHd, false);
                         }
