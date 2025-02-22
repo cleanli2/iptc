@@ -16,9 +16,15 @@ HWND editHd;
 HWND sHd;
 #define MY_ID_EDIT 0x3501
 #define MY_ID_BT 0x3502
+#define MY_ID_BTNH 0x3503
 #define TEXT_W 800
 #define TEXT_H 320
 #define HINT_SIZE 10
+#define HINT_MAX 3
+
+char hint_bufp[HINT_MAX][32];
+char hint_rec[HINT_MAX*32+256];
+int hint_idxp=0;
 
 int end_of_file=0;
 int csa[HINT_SIZE];
@@ -39,6 +45,7 @@ char objbuf[BUFSIZE+1]={0};
 char stext_buf[50];
 char stext_buf2[50];
 int cur_size=0, g_filesize=0;
+void save_hint();
 
 void csa_init()
 {
@@ -263,6 +270,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     fprintf(g_fp, "%d", cur_size);
     fclose(g_fp);
 
+    save_hint();
     /* The program return-value is 0 - The value that PostQuitMessage() gave */
     return messages.wParam;
 }
@@ -371,6 +379,58 @@ void set_font()
     SendMessage(editHd, WM_SETFONT, (WPARAM)hFont, TRUE);
 }
 
+int get_pre_posi(unsigned char*s, int ps, int n)
+{
+    int j=ps;
+    while(n--){
+        j--;
+        if(s[j-1]>0x80){
+            j--;
+        }
+    }
+    return j;
+}
+
+void get_hint()
+{
+    int i = 0, j, strp;
+    char prec[11]={0}, postc[3];
+    if(hint_idxp>=HINT_MAX){
+        sprintf(hint_rec, "最多%d次提示，已经用完！", HINT_MAX);
+        return;
+    }
+    while(strbuf[i]==objbuf[i])i++;
+    j=get_pre_posi((unsigned char*)strbuf, i, 5);
+    postc[0]=objbuf[i];
+    postc[1]=objbuf[i+1];
+    postc[2]=0;
+    memcpy(prec, &strbuf[j], i-j);
+    sprintf(hint_bufp[hint_idxp], "%d:\"%s\"之后是：\"%s\"，文件第%d字节。", hint_idxp+1, prec, postc, cur_size);
+    memset(hint_rec, 0, sizeof(hint_rec));
+    sprintf(hint_rec, "%s\r\n共有%d次提示机会，已用%d次。\r\n以下为历史提示记录：\r\n",
+            hint_bufp[hint_idxp], HINT_MAX, hint_idxp);
+    for(int k=0;k<hint_idxp;k++){
+        strp=strlen(hint_rec);
+        sprintf(&hint_rec[strp], "%s\r\n", hint_bufp[k]);
+    }
+    hint_idxp++;
+}
+
+void save_hint()
+{
+    FILE* tmp=fopen("hint_rec.txt", "a");
+    if(!tmp){
+        printf("open hint rec failed\r\n");
+    }
+    else{
+        fprintf(tmp, "共使用%d次提示，以下为提示记录：\r\n");
+        for(int k=0;k<hint_idxp;k++){
+            fprintf(tmp, "%s\r\n", hint_bufp[k]);
+        }
+        fclose(tmp);
+    }
+}
+
 /*  This function is called by the Windows function DispatchMessage()  */
 
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -387,7 +447,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 CreateWindow("Button", "重来", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         10, 40, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
                 CreateWindow("Button", "提示", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        10, 5, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
+                        10, 5, 100, 30, hwnd, (HMENU)MY_ID_BTNH, hg_app, NULL);
                 sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
                         cur_size, g_filesize, cur_size*100/g_filesize);
                 sHd = CreateWindow("Static",stext_buf, SS_SIMPLE | WS_CHILD | WS_VISIBLE,
@@ -462,6 +522,14 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     SetWindowText(editHd, strbuf);
                     printf("button clicked\r\n");
                     break;
+                case MY_ID_BTNH:
+                    {
+                        int hsti = get_csa();
+                        get_hint();
+                        printf("button2 clicked\r\n");
+                        MessageBox(NULL, _T(hint_rec), _T("提示"),MB_OK);
+                        break;
+                    }
                 default:
                     printf("unhandled\r\n");
             }
