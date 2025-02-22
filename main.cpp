@@ -16,8 +16,8 @@ HWND editHd;
 HWND sHd;
 #define MY_ID_EDIT 0x3501
 #define MY_ID_BT 0x3502
-#define TEXT_W 500
-#define TEXT_H 100
+#define TEXT_W 800
+#define TEXT_H 120
 #define HINT_SIZE 10
 
 int end_of_file=0;
@@ -348,6 +348,28 @@ void do_compare()
     }
 }
 
+void set_font()
+{
+    LOGFONT font;
+    font.lfHeight = 36;
+    font.lfWidth = 0;
+    font.lfEscapement = 0;
+    font.lfOrientation = 0;
+    font.lfWeight = FW_BOLD;
+    font.lfItalic = false;
+    font.lfUnderline = false;
+    font.lfStrikeOut = false;
+    font.lfEscapement = 0;
+    font.lfOrientation = 0;
+    font.lfOutPrecision = OUT_DEFAULT_PRECIS;
+    font.lfClipPrecision = CLIP_STROKE_PRECIS | CLIP_MASK | CLIP_TT_ALWAYS | CLIP_LH_ANGLES;
+    font.lfQuality = ANTIALIASED_QUALITY;
+    font.lfPitchAndFamily = VARIABLE_PITCH | FF_DONTCARE;
+
+    HFONT hFont = ::CreateFontIndirect(&font);
+    SendMessage(editHd, WM_SETFONT, (WPARAM)hFont, TRUE);
+}
+
 /*  This function is called by the Windows function DispatchMessage()  */
 
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -367,6 +389,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         cur_size, g_filesize, cur_size*100/g_filesize);
                 sHd = CreateWindow("Static",stext_buf, SS_SIMPLE | WS_CHILD | WS_VISIBLE,
                         120, 10, 450,30, hwnd, NULL, hg_app, NULL);
+                set_font();
                 if_end();
                 break;
             }
