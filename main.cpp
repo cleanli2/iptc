@@ -7,6 +7,7 @@
 #include <tchar.h>
 #include <windows.h>
 #include <cstdio>
+#include <time.h>
 #include <sys/stat.h>
 
 //#pragma comment(lib, "ws2_32.lib")
@@ -22,8 +23,8 @@ HWND sHd;
 #define HINT_SIZE 10
 #define HINT_MAX 3
 
-char hint_bufp[HINT_MAX][32];
-char hint_rec[HINT_MAX*32+256];
+char hint_bufp[HINT_MAX][128]={0};
+char hint_rec[HINT_MAX*128+256];
 int hint_idxp=0;
 
 int end_of_file=0;
@@ -405,10 +406,10 @@ void get_hint()
     postc[1]=objbuf[i+1];
     postc[2]=0;
     memcpy(prec, &strbuf[j], i-j);
-    sprintf(hint_bufp[hint_idxp], "%d:\"%s\"之后是：\"%s\"，文件第%d字节。", hint_idxp+1, prec, postc, cur_size);
+    sprintf(hint_bufp[hint_idxp], "第%d次: 『%s』之后是：『%s』，文件第%d字节处。", hint_idxp+1, prec, postc, cur_size);
     memset(hint_rec, 0, sizeof(hint_rec));
-    sprintf(hint_rec, "%s\r\n共有%d次提示机会，已用%d次。\r\n以下为历史提示记录：\r\n",
-            hint_bufp[hint_idxp], HINT_MAX, hint_idxp);
+    sprintf(hint_rec, "%s\r\n\r\n共有%d次提示机会，已用%d次。\r\n以下为历史提示记录：\r\n",
+            hint_bufp[hint_idxp], HINT_MAX, hint_idxp+1);
     for(int k=0;k<hint_idxp;k++){
         strp=strlen(hint_rec);
         sprintf(&hint_rec[strp], "%s\r\n", hint_bufp[k]);
@@ -418,12 +419,15 @@ void get_hint()
 
 void save_hint()
 {
+    time_t nowt;
     FILE* tmp=fopen("hint_rec.txt", "a");
     if(!tmp){
         printf("open hint rec failed\r\n");
     }
     else{
-        fprintf(tmp, "共使用%d次提示，以下为提示记录：\r\n");
+        time(&nowt);
+        fprintf(tmp, "------------------------------\r\n");
+        fprintf(tmp, "%s共使用%d次提示，以下为提示记录：\r\n", ctime(&nowt), hint_idxp);
         for(int k=0;k<hint_idxp;k++){
             fprintf(tmp, "%s\r\n", hint_bufp[k]);
         }
