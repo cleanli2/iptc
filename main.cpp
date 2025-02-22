@@ -137,6 +137,7 @@ void do_iptc_init()
     if(cur_size!=0){
         fseek(g_fp, cur_size, SEEK_SET);
     }
+    end_of_file=0;
     printf("cur %d ftell:%d\r\n", cur_size, ftell(g_fp));
 
     fread(objbuf, BUFSIZE-OBJ_EMPTYLEFT, 1, g_fp);
