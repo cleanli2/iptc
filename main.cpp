@@ -17,7 +17,7 @@ HWND sHd;
 #define MY_ID_EDIT 0x3501
 #define MY_ID_BT 0x3502
 #define TEXT_W 800
-#define TEXT_H 120
+#define TEXT_H 320
 #define HINT_SIZE 10
 
 int end_of_file=0;
@@ -226,7 +226,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */
            TEXT_W+40,                 /* The programs width */
-           TEXT_H*2,                 /* and height in pixels */
+           TEXT_H+100,                 /* and height in pixels */
            HWND_DESKTOP,        /* The window is a child-window to desktop */
            NULL,                /* No menu */
            hThisInstance,       /* Program Instance handler */
