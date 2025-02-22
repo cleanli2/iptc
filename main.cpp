@@ -37,6 +37,7 @@ FILE* g_fp=NULL;
 char strbuf[BUFSIZE+1];
 char objbuf[BUFSIZE+1]={0};
 char stext_buf[50];
+char stext_buf2[50];
 int cur_size=0, g_filesize=0;
 
 void csa_init()
@@ -226,7 +227,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */
            TEXT_W+40,                 /* The programs width */
-           TEXT_H+100,                 /* and height in pixels */
+           TEXT_H+140,                 /* and height in pixels */
            HWND_DESKTOP,        /* The window is a child-window to desktop */
            NULL,                /* No menu */
            hThisInstance,       /* Program Instance handler */
@@ -382,12 +383,17 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             {
                 do_compare();
                 editHd = CreateWindow(TEXT("edit"),TEXT(strbuf),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT|ES_MULTILINE,
-                        20, 50, TEXT_W, TEXT_H, hwnd,(HMENU)MY_ID_EDIT, hg_app,NULL);
+                        20, 80, TEXT_W, TEXT_H, hwnd,(HMENU)MY_ID_EDIT, hg_app,NULL);
                 CreateWindow("Button", "重来", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        10, 10, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
+                        10, 40, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
+                CreateWindow("Button", "提示", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                        10, 5, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
                 sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
                         cur_size, g_filesize, cur_size*100/g_filesize);
                 sHd = CreateWindow("Static",stext_buf, SS_SIMPLE | WS_CHILD | WS_VISIBLE,
+                        120, 40, 450,30, hwnd, NULL, hg_app, NULL);
+                sprintf(stext_buf2, "Version:%s, built @ %s%s", GIT_SHA1, __DATE__, __TIME__);
+                CreateWindow("Static",stext_buf2, SS_SIMPLE | WS_CHILD | WS_VISIBLE,
                         120, 10, 450,30, hwnd, NULL, hg_app, NULL);
                 set_font();
                 if_end();
