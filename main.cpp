@@ -159,6 +159,49 @@ void do_iptc_init()
     printf("cursize=%d after hint\r\n", cur_size);
 }
 
+int file_convert()
+{
+    int bc, wait=0;
+    FILE*f1=fopen("book_r.txt", "rb");
+
+    if(!f1){
+        printf("open book_r.txt failed\r\n");
+        MessageBox(NULL, _T("打开book_r.txt失败，退出！"), _T("提示"),MB_OK);
+        return -1;
+    }
+    else{
+        printf("open book_r.txt ok\r\n");
+    }
+    FILE*f2=fopen("book.txt", "wb");
+
+    if(!f2){
+        printf("open book.txt failed\r\n");
+        return -1;
+    }
+    else{
+        printf("open book.txt ok\r\n");
+    }
+
+    while(EOF!=(bc=fgetc(f1))){
+        if(wait==0){
+            fputc((char)(bc&0xff), f2);
+            if(0x0d==(bc&0xff)){
+                fputc((char)(0xa), f2);
+                wait=1;
+            }
+        }
+        else{
+            if(0x0a!=(bc&0xff)){
+                fputc((char)(bc&0xff), f2);
+                wait=0;
+            }
+        }
+    }
+    fclose(f1);
+    fclose(f2);
+    return 0;
+}
+
 int WINAPI WinMain (HINSTANCE hThisInstance,
                      HINSTANCE hPrevInstance,
                      LPSTR lpszArgument,
@@ -181,6 +224,10 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
         fscanf(g_fp, "%d", &cur_size);
         printf("open save ok=%d\r\n", cur_size);
         fclose(g_fp);
+    }
+
+    if(0>file_convert()){
+        return -1;
     }
 
     g_fp=fopen("book.txt", "rb");
