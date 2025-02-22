@@ -413,7 +413,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     if(HIWORD(wParam)==EN_CHANGE){
                         printf("EN_CHANGE\r\n");
                         GetWindowText(editHd, strbuf, BUFSIZE);
-                        printf("%s\r\n", strbuf);
+                        //printf("%s\r\n", strbuf);
                         printf("len %d, max %d\r\n", strlen(strbuf), BUFSIZE-EMPTYLEFT);
                         if(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
                             printf("need left move\r\n");
