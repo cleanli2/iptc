@@ -18,7 +18,7 @@ HWND sHd;
 #define MY_ID_EDIT 0x3501
 #define MY_ID_BT 0x3502
 #define MY_ID_BTNH 0x3503
-#define TEXT_W 760
+#define TEXT_W 720
 #define TEXT_H 320
 #define HINT_SIZE 10
 #define HINT_MAX 3
