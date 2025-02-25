@@ -21,7 +21,7 @@ HWND sHd;
 #define TEXT_W 720
 #define TEXT_H 320
 #define HINT_SIZE 10
-#define HINT_MAX 3
+#define HINT_MAX 9
 
 char hint_bufp[HINT_MAX][128]={0};
 char hint_rec[HINT_MAX*128+256];
@@ -497,7 +497,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 editHd = CreateWindow(TEXT("edit"),TEXT(strbuf),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT|ES_MULTILINE,
                         20, 80, TEXT_W, TEXT_H, hwnd,(HMENU)MY_ID_EDIT, hg_app,NULL);
                 CreateWindow("Button", "重来", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        10, 40, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
+                        TEXT_W-100, 5, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
                 CreateWindow("Button", "提示", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         10, 5, 100, 30, hwnd, (HMENU)MY_ID_BTNH, hg_app, NULL);
                 sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
