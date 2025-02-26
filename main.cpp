@@ -565,14 +565,16 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
                     break;
                 case MY_ID_BT:
-                    cur_size=0;
-                    fseek(g_fp, cur_size, SEEK_SET);
-                    do_iptc_init();
-                    do_compare();
-                    EnableWindow(editHd, true);
-                    SetWindowText(sHd, stext_buf);
-                    SetWindowText(editHd, strbuf);
                     printf("button clicked\r\n");
+                    if(IDOK==MessageBox(hwnd, _T("确认要重新开始吗？"), _T("确认"),MB_OKCANCEL)){
+                        cur_size=0;
+                        fseek(g_fp, cur_size, SEEK_SET);
+                        do_iptc_init();
+                        do_compare();
+                        EnableWindow(editHd, true);
+                        SetWindowText(sHd, stext_buf);
+                        SetWindowText(editHd, strbuf);
+                    }
                     break;
                 case MY_ID_BTNH:
                     {
