@@ -41,6 +41,7 @@ int g_correct=0;
 #define OBJ_EMPTYLEFT 4
 
 FILE* g_fp=NULL;
+FILE* log_fp=NULL;
 char strbuf[BUFSIZE+1];
 char objbuf[BUFSIZE+1]={0};
 char stext_buf[50];
@@ -139,6 +140,7 @@ void do_iptc_init()
     }
     end_of_file=0;
     printf("cur %d ftell:%d\r\n", cur_size, ftell(g_fp));
+    fprintf(log_fp, "cur %d ftell:%d\r\n", cur_size, ftell(g_fp));
 
     fread(objbuf, BUFSIZE-OBJ_EMPTYLEFT, 1, g_fp);
 
@@ -157,6 +159,7 @@ void do_iptc_init()
         put_csa(cur_size);
     }
     printf("cursize=%d after hint\r\n", cur_size);
+    fprintf(log_fp, "cursize=%d after hint\r\n", cur_size);
 }
 
 int file_convert()
@@ -211,9 +214,16 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     MSG messages;            /* Here messages to the application are saved */
     WNDCLASSEX wincl;        /* Data structure for the windowclass */
     struct stat fstat;
+    log_fp=fopen("iptc.log", "a");
+    if(!log_fp){
+        printf("open log failed\r\n");
+        MessageBox(NULL, _T("打开log失败，退出！"), _T("提示"),MB_OK);
+        return -1;
+    }
 
     setbuf(stdout, NULL);
     printf("started\r\n");
+    fprintf(log_fp, "\r\n\r\n************started*************\r\n");
     
     //open save
     g_fp=fopen("save", "r");
@@ -249,6 +259,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     g_filesize=fstat.st_size;
     printf("filesize=%d\r\n", g_filesize);
+    fprintf(log_fp, "filesize=%d\r\n", g_filesize);
 
     do_iptc_init();
 
@@ -307,6 +318,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     //save
     printf("cur=%d before exit\r\n", cur_size);
+    fprintf(log_fp, "cur=%d before exit\r\n", cur_size);
     cur_size = get_csa();
     g_fp=fopen("save", "w");
     if(!g_fp){
@@ -317,9 +329,12 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
         printf("open save ok=%d\r\n", cur_size);
     }
     fprintf(g_fp, "%d", cur_size);
+    fprintf(log_fp, "save cur=%d\r\n", cur_size);
     fclose(g_fp);
 
     save_hint();
+    fprintf(log_fp, "quit\r\n");
+    fclose(log_fp);
     /* The program return-value is 0 - The value that PostQuitMessage() gave */
     return messages.wParam;
 }
