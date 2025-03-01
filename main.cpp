@@ -6,6 +6,7 @@
 
 #include <tchar.h>
 #include <windows.h>
+#include <WindowsX.h>
 #include <cstdio>
 #include <time.h>
 #include <sys/stat.h>
@@ -15,6 +16,7 @@
 HINSTANCE hg_app;
 HWND editHd;
 HWND sHd;
+HWND cmc_sHd;
 #define MY_ID_EDIT 0x3501
 #define MY_ID_BT 0x3502
 #define MY_ID_BTNH 0x3503
@@ -526,6 +528,7 @@ void save_hint()
 
 /*  This function is called by the Windows function DispatchMessage()  */
 
+char common_cc[]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当>佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定"};
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int newstrlen;
@@ -546,6 +549,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         cur_size, g_filesize, cur_size*100/g_filesize);
                 sHd = CreateWindow("Static",stext_buf, SS_SIMPLE | WS_CHILD | WS_VISIBLE,
                          120, 10, 450,30, hwnd, NULL, hg_app, NULL);
+                //cmc_sHd = CreateWindow("Static", "III", SS_SIMPLE | WS_CHILD | WS_VISIBLE ,
+                //         TEXT_W+10, 40, 300,100, hwnd, NULL, hg_app, NULL);
                 sprintf(stext_buf2, "Version:%s, built @ %s%s", GIT_SHA1, __DATE__, __TIME__);
                 CreateWindow("Static",stext_buf2, SS_SIMPLE | WS_CHILD | WS_VISIBLE,
                         TEXT_W-120,10, 450,30, hwnd, NULL, hg_app, NULL);
@@ -565,6 +570,14 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 }
             }
             break;
+        case WM_LBUTTONDOWN:
+            {
+                int lmx = GET_X_LPARAM(lParam);
+                int lmy = GET_Y_LPARAM(lParam);
+                printf("l m %d %d\r\n", lmx, lmy);
+            }
+            break;
+
         case WM_COMMAND:
             //printf("wmcmd\r\n");
             switch(LOWORD(wParam))
@@ -635,6 +648,40 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     printf("unhandled\r\n");
             }
 
+            break;
+        case WM_PAINT:
+            {
+                HDC hdc;
+                RECT rt;
+                PAINTSTRUCT ps;
+                hdc = BeginPaint(hwnd, &ps);
+
+                LOGFONT font;
+
+                font.lfHeight = 32;
+                //font.lfHeight = MulDiv(20, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+                font.lfWidth = 0;
+                font.lfEscapement = 0;
+                font.lfOrientation = 0;
+                font.lfWeight = FW_BOLD;
+                font.lfItalic = false;
+                font.lfUnderline = false;
+                font.lfStrikeOut = false;
+                font.lfEscapement = 0;
+                font.lfOrientation = 0;
+                font.lfOutPrecision = OUT_DEFAULT_PRECIS;
+                font.lfClipPrecision = CLIP_STROKE_PRECIS | CLIP_MASK | CLIP_TT_ALWAYS | CLIP_LH_ANGLES;
+                font.lfQuality = ANTIALIASED_QUALITY;
+                font.lfPitchAndFamily = VARIABLE_PITCH | FF_DONTCARE;
+                strcpy_s(font.lfFaceName, "黑体");
+
+                HFONT hFont = ::CreateFontIndirect(&font);
+
+                SelectObject(hdc, hFont);
+                SetTextColor(hdc, RGB(0, 128, 255));
+                TextOut(hdc, TEXT_W+10, 40, "的",2);
+                EndPaint(hwnd, &ps);
+            }
             break;
         case WM_DESTROY:
             PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
