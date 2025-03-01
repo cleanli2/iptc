@@ -572,6 +572,7 @@ int get_selcn(int x, int y)
     else{
         ret = -1;
     }
+    printf("get_selcn ret=%d\r\n", ret);
     return ret;
 }
 
@@ -636,6 +637,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     else{
                         g_sel_cn=sel_cn;
                     }
+                    InvalidateRect(hwnd,NULL,TRUE);
                 }
             }
             break;
@@ -759,10 +761,25 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 TextOut(hdc, 5, 360, his_buf,44);
                 TextOut(hdc, 5, 392, his_buf+44,44);
                 if(g_sel_cn>=0){
+                    HPEN hPen = CreatePen(PS_SOLID,4,RGB(0,0,0));;
+                    HPEN orgPen = (HPEN)SelectObject(hdc, hPen);
                     if(g_sel_cn<120){
+                        MoveToEx(hdc, CIXS+(g_sel_cn%10)*WX, CIYS+(g_sel_cn/10)*WY, NULL);
+                        LineTo(hdc, CIXS+(g_sel_cn%10)*WX, CIYS+(g_sel_cn/10)*WY+WY);
+                        LineTo(hdc, CIXS+(g_sel_cn%10)*WX+WX, CIYS+(g_sel_cn/10)*WY+WY);
+                        LineTo(hdc, CIXS+(g_sel_cn%10)*WX+WX, CIYS+(g_sel_cn/10)*WY);
+                        LineTo(hdc, CIXS+(g_sel_cn%10)*WX, CIYS+(g_sel_cn/10)*WY);
                     }
                     else{
+                        int ti=g_sel_cn-120;
+                        MoveToEx(hdc, CIXS1+(ti%22)*WX, CIYS1+(ti/22)*WY, NULL);
+                        LineTo(hdc, CIXS1+(ti%22)*WX, CIYS1+(ti/22)*WY+WY);
+                        LineTo(hdc, CIXS1+(ti%22)*WX+WX, CIYS1+(ti/22)*WY+WY);
+                        LineTo(hdc, CIXS1+(ti%22)*WX+WX, CIYS1+(ti/22)*WY);
+                        LineTo(hdc, CIXS1+(ti%22)*WX, CIYS1+(ti/22)*WY);
                     }
+                    SelectObject(hdc, orgPen);
+                    DeleteObject(hPen);
                 }
                 SelectObject(hdc, oft);
                 EndPaint(hwnd, &ps);
