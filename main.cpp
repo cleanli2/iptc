@@ -224,6 +224,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     setbuf(stdout, NULL);
     printf("started\r\n");
     fprintf(log_fp, "\r\n\r\n************started*************\r\n");
+    datelog();
     
     //open save
     g_fp=fopen("save", "r");
@@ -312,7 +313,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
         /* Send message to WindowProcedure */
         DispatchMessage(&messages);
     }
-
+  
+    datelog();
     fclose(g_fp);
     printf("end\r\n");
 
@@ -334,6 +336,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     save_hint();
     fprintf(log_fp, "quit\r\n");
+    fprintf(log_fp, "\r\n\r\n************ended*************\r\n");
     fclose(log_fp);
     /* The program return-value is 0 - The value that PostQuitMessage() gave */
     return messages.wParam;
@@ -478,6 +481,15 @@ void get_hint()
         sprintf(&hint_rec[strp], "%s\r\n", hint_bufp[k]);
     }
     hint_idxp++;
+}
+
+void datelog()
+{
+    time_t nowt;
+
+    time(&nowt);
+    printf("%s\r\n", ctime(&nowt));
+    fprintf(log_fp, "%s\r\n", ctime(&nowt));
 }
 
 void save_hint()
