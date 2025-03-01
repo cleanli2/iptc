@@ -25,11 +25,25 @@ HWND cmc_sHd;
 #define TEXT_H 320
 #define HINT_SIZE 10
 #define HINT_MAX 9
+#define CIXS (TEXT_W+10)
+#define CIYS (40)
+#define CIXE1 (CIXS+WX*10)
+#define CIYE1 (CIYS+WY*12)
+#define CIXS1 (CIXS-WX*22)
+#define CIYS1 (CIYS+WY*10)
+#define CIXE2 (CIXS)
+#define CIYE2 (CIYE1)
+#define CIYS (40)
+#define WY (FONTSIZE+2)
+#define WX (FONTSIZE+3)
+#define SIG(x, xs, xe) ((x)>=(xs) && (xe)>=(x))
+#define IN_RANGE(x, y, xs, ys, xe, ye) (SIG(x, xs, xe))&&(SIG(y, ys, ye))
 
 char hint_bufp[HINT_MAX][128]={0};
 char hint_rec[HINT_MAX*128+256];
 int hint_idxp=0;
 int laststrlen=0;
+int g_sel_cn = -1;
 
 int end_of_file=0;
 int csa[HINT_SIZE];
@@ -45,6 +59,7 @@ int bytes_ct=0;
 #define EMPTYLEFT 6
 #define OBJ_EMPTYLEFT 4
 
+HFONT hFont = NULL, oft=NULL;
 FILE* g_fp=NULL;
 FILE* log_fp=NULL;
 char strbuf[BUFSIZE+1];
@@ -545,6 +560,21 @@ void save_hint()
     }
 }
 
+int get_selcn(int x, int y)
+{
+    int ret;
+    if(IN_RANGE(x, y, CIXS, CIYS, CIXE1, CIYE1)){
+        ret=(y-CIYS)/WY*10+(x-CIXS)/(FONTSIZE+3);
+    }
+    else if(IN_RANGE(x, y, CIXS1, CIYS1, CIXE2, CIYE2)){
+        ret=(y-CIYS1)/WY*22+(x-CIXS1)/(FONTSIZE+3)+120;
+    }
+    else{
+        ret = -1;
+    }
+    return ret;
+}
+
 /*  This function is called by the Windows function DispatchMessage()  */
 
 #define CMCC_SIZE 240
@@ -597,6 +627,16 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 int lmx = GET_X_LPARAM(lParam);
                 int lmy = GET_Y_LPARAM(lParam);
                 printf("l m %d %d\r\n", lmx, lmy);
+                int sel_cn=get_selcn(lmx, lmy);
+                if(sel_cn>=0){
+                    if(sel_cn==g_sel_cn){
+                        printf("%d sel confirmed\r\n", g_sel_cn);
+                        g_sel_cn=-1;
+                    }
+                    else{
+                        g_sel_cn=sel_cn;
+                    }
+                }
             }
             break;
 
@@ -686,28 +726,30 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 PAINTSTRUCT ps;
                 hdc = BeginPaint(hwnd, &ps);
 
-                LOGFONT font;
+                if(hFont==NULL){
+                    LOGFONT font;
 
-                font.lfHeight = FONTSIZE;
-                //font.lfHeight = MulDiv(20, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-                font.lfWidth = 0;
-                font.lfEscapement = 0;
-                font.lfOrientation = 0;
-                font.lfWeight = FW_BOLD;
-                font.lfItalic = false;
-                font.lfUnderline = false;
-                font.lfStrikeOut = false;
-                font.lfEscapement = 0;
-                font.lfOrientation = 0;
-                font.lfOutPrecision = OUT_DEFAULT_PRECIS;
-                font.lfClipPrecision = CLIP_STROKE_PRECIS | CLIP_MASK | CLIP_TT_ALWAYS | CLIP_LH_ANGLES;
-                font.lfQuality = ANTIALIASED_QUALITY;
-                font.lfPitchAndFamily = VARIABLE_PITCH | FF_DONTCARE;
-                strcpy_s(font.lfFaceName, "ºÚÌå");
+                    font.lfHeight = FONTSIZE;
+                    //font.lfHeight = MulDiv(20, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+                    font.lfWidth = 0;
+                    font.lfEscapement = 0;
+                    font.lfOrientation = 0;
+                    font.lfWeight = FW_BOLD;
+                    font.lfItalic = false;
+                    font.lfUnderline = false;
+                    font.lfStrikeOut = false;
+                    font.lfEscapement = 0;
+                    font.lfOrientation = 0;
+                    font.lfOutPrecision = OUT_DEFAULT_PRECIS;
+                    font.lfClipPrecision = CLIP_STROKE_PRECIS | CLIP_MASK | CLIP_TT_ALWAYS | CLIP_LH_ANGLES;
+                    font.lfQuality = ANTIALIASED_QUALITY;
+                    font.lfPitchAndFamily = VARIABLE_PITCH | FF_DONTCARE;
+                    strcpy_s(font.lfFaceName, "ºÚÌå");
 
-                HFONT hFont = ::CreateFontIndirect(&font);
+                    hFont = ::CreateFontIndirect(&font);
+                }
 
-                SelectObject(hdc, hFont);
+                oft = (HFONT)SelectObject(hdc, hFont);
                 SetTextColor(hdc, RGB(0, 128, 255));
                 SetTextCharacterExtra(hdc, 2);
                 for(int i=0;i<12;i++){
@@ -716,10 +758,18 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 SetTextColor(hdc, RGB(20, 128, 155));
                 TextOut(hdc, 5, 360, his_buf,44);
                 TextOut(hdc, 5, 392, his_buf+44,44);
+                if(g_sel_cn>=0){
+                    if(g_sel_cn<120){
+                    }
+                    else{
+                    }
+                }
+                SelectObject(hdc, oft);
                 EndPaint(hwnd, &ps);
             }
             break;
         case WM_DESTROY:
+            DeleteObject(hFont);
             PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
             break;
         default:                      /* for messages that we don't deal with */
