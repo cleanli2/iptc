@@ -26,6 +26,7 @@ HWND sHd;
 char hint_bufp[HINT_MAX][128]={0};
 char hint_rec[HINT_MAX*128+256];
 int hint_idxp=0;
+int laststrlen=0;
 
 int end_of_file=0;
 int csa[HINT_SIZE];
@@ -33,6 +34,7 @@ int csap=0;
 char tc[3];
 int bc;
 int g_correct=0;
+int bytes_ct=0;
 #define COLOR_CORRECT RGB(0, 0, 255)
 #define COLOR_NOT_CORRECT RGB(255, 0, 0)
 
@@ -161,6 +163,7 @@ void do_iptc_init()
     }
     printf("cursize=%d after hint\r\n", cur_size);
     fprintf(log_fp, "cursize=%d after hint\r\n", cur_size);
+    laststrlen=strlen(strbuf);
 }
 
 int file_convert()
@@ -211,10 +214,12 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
                      LPSTR lpszArgument,
                      int nCmdShow)
 {
+    time_t sttt, edt;
     HWND hwnd;               /* This is the handle for our window */
     MSG messages;            /* Here messages to the application are saved */
     WNDCLASSEX wincl;        /* Data structure for the windowclass */
     struct stat fstat;
+    time(&sttt);
     log_fp=fopen("iptc.log", "a");
     if(!log_fp){
         printf("open log failed\r\n");
@@ -334,6 +339,13 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     fprintf(g_fp, "%d", cur_size);
     fprintf(log_fp, "save cur=%d\r\n", cur_size);
     fclose(g_fp);
+    time(&edt);
+    int t_secs=difftime(edt, sttt);
+    sprintf(hint_rec, "总共输入%d字节（%d汉字），耗时%d分%d秒，速度%d汉字/分钟。\r\n",
+            bytes_ct, bytes_ct/2, t_secs/60, t_secs%60, bytes_ct*60/2/t_secs);
+    printf("%s", hint_rec);
+    fprintf(log_fp, "%s", hint_rec);
+    MessageBox(NULL, _T(hint_rec), _T("提示"),MB_OK);
 
     save_hint();
     fprintf(log_fp, "quit\r\n\r\n");
@@ -516,6 +528,7 @@ void save_hint()
 
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    int newstrlen;
     //printf("-%x %x\r\n", wParam, lParam);
     switch (message)                  /* handle the messages */
     {
@@ -560,6 +573,10 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     if(HIWORD(wParam)==EN_CHANGE){
                         printf("EN_CHANGE\r\n");
                         GetWindowText(editHd, strbuf, BUFSIZE);
+                        newstrlen=strlen(strbuf);
+                        if(newstrlen>laststrlen){
+                            bytes_ct+=newstrlen-laststrlen;
+                        }
                         //printf("%s\r\n", strbuf);
                         printf("len %d, max %d\r\n", strlen(strbuf), BUFSIZE-EMPTYLEFT);
                         if(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
@@ -582,6 +599,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         printf("objshow:\r\n");
                         dumpstr(objbuf);
                         do_compare();
+                        laststrlen=strlen(strbuf);
                         SetWindowText(sHd, stext_buf);
                         SetWindowText(editHd, strbuf);
                         SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
