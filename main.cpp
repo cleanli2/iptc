@@ -126,6 +126,24 @@ void str_leftmove(char*s, int n)
     memset(s+l-n, 0, n);
 }
 
+void chs_put_in_list(char*ch, char*list, int len)
+{
+    int i;
+    printf("chs_put_in_list\r\n");
+    dumpstr(list);
+    for(i=0;i<len;i+=2){
+        if((ch[0]==list[i])&&(ch[1]==list[i+1])){
+            break;
+        }
+    }
+    if(i>=len)i=0;
+    str_leftmove(list+i, 2);
+    list[len-2]=ch[0];
+    list[len-1]=ch[1];
+    dumpstr(list);
+}
+
+
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
 
@@ -529,7 +547,10 @@ void save_hint()
 
 /*  This function is called by the Windows function DispatchMessage()  */
 
-char common_cc[]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定"};
+#define CMCC_SIZE 240
+#define HIS_SIZE 88
+char common_cc[CMCC_SIZE+1]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定"};
+char his_buf[HIS_SIZE+1]={"的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的"};
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int newstrlen;
@@ -585,11 +606,19 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             {
                 case MY_ID_EDIT:
                     if(HIWORD(wParam)==EN_CHANGE){
-                        printf("EN_CHANGE\r\n");
                         GetWindowText(editHd, strbuf, BUFSIZE);
                         newstrlen=strlen(strbuf);
+                        printf("EN_CHANGE %d %d\r\n", laststrlen, newstrlen);
                         if(newstrlen>laststrlen){
                             bytes_ct+=newstrlen-laststrlen;
+                            for(int n=laststrlen;n<=newstrlen;n++){
+                                if((unsigned char)strbuf[n]>0x80){
+                                    if(n+1<=newstrlen){
+                                        chs_put_in_list(&strbuf[n], his_buf, HIS_SIZE);
+                                        n++;
+                                    }
+                                }
+                            }
                         }
                         //printf("%s\r\n", strbuf);
                         printf("len %d, max %d\r\n", strlen(strbuf), BUFSIZE-EMPTYLEFT);
@@ -684,6 +713,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 for(int i=0;i<12;i++){
                     TextOut(hdc, TEXT_W+10, 40+i*(FONTSIZE+2), common_cc+i*20,20);
                 }
+                SetTextColor(hdc, RGB(20, 128, 155));
+                TextOut(hdc, 5, 360, his_buf,44);
+                TextOut(hdc, 5, 392, his_buf+44,44);
                 EndPaint(hwnd, &ps);
             }
             break;
