@@ -582,9 +582,53 @@ int get_selcn(int x, int y)
 #define HIS_SIZE 88
 char common_cc[CMCC_SIZE+1]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定"};
 char his_buf[HIS_SIZE+1]={"的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的"};
-LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+
+void handle_input()
 {
     int newstrlen;
+    newstrlen=strlen(strbuf);
+    printf("EN_CHANGE %d %d\r\n", laststrlen, newstrlen);
+    if(newstrlen>laststrlen){
+        bytes_ct+=newstrlen-laststrlen;
+        for(int n=laststrlen;n<=newstrlen;n++){
+            if((unsigned char)strbuf[n]>0x80){
+                if(n+1<=newstrlen){
+                    chs_put_in_list(&strbuf[n], his_buf, HIS_SIZE);
+                    n++;
+                }
+            }
+        }
+    }
+    //printf("%s\r\n", strbuf);
+    printf("len %d, max %d\r\n", strlen(strbuf), BUFSIZE-EMPTYLEFT);
+    if(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
+        printf("need left move\r\n");
+        while(!end_of_file && strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
+            if((unsigned char)(0xff&strbuf[0])>(unsigned char)0x80){
+                str_leftmove(strbuf, 2);
+                str_leftmove(objbuf, 2);
+            }
+            else{
+                str_leftmove(strbuf, 1);
+                str_leftmove(objbuf, 1);
+            }
+        }
+        makeup_obj();
+        printf("strlen strbuf=%d, max %d\r\n", strlen(strbuf), (BUFSIZE-EMPTYLEFT));
+    }
+    printf("strshow:\r\n");
+    dumpstr(strbuf);
+    printf("objshow:\r\n");
+    dumpstr(objbuf);
+    do_compare();
+    laststrlen=strlen(strbuf);
+    SetWindowText(sHd, stext_buf);
+    SetWindowText(editHd, strbuf);
+    SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
+    if_end();
+}
+LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
     //printf("-%x %x\r\n", wParam, lParam);
     switch (message)                  /* handle the messages */
     {
@@ -625,6 +669,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             break;
         case WM_LBUTTONDOWN:
             {
+                char ocnc[3]={0};
                 int lmx = GET_X_LPARAM(lParam);
                 int lmy = GET_Y_LPARAM(lParam);
                 printf("l m %d %d\r\n", lmx, lmy);
@@ -632,6 +677,18 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 if(sel_cn>=0){
                     if(sel_cn==g_sel_cn){
                         printf("%d sel confirmed\r\n", g_sel_cn);
+                        if(g_sel_cn<120){
+                            ocnc[0]=common_cc[g_sel_cn*2];
+                            ocnc[1]=common_cc[g_sel_cn*2+1];
+                        }
+                        else{
+                            ocnc[0]=his_buf[(g_sel_cn-120)*2];
+                            ocnc[1]=his_buf[(g_sel_cn-120)*2+1];
+                        }
+                        ocnc[2]=0;
+                        strcat(strbuf, ocnc);
+                        SetWindowText(editHd, strbuf);
+                        handle_input();
                         g_sel_cn=-1;
                     }
                     else{
@@ -649,47 +706,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 case MY_ID_EDIT:
                     if(HIWORD(wParam)==EN_CHANGE){
                         GetWindowText(editHd, strbuf, BUFSIZE);
-                        newstrlen=strlen(strbuf);
-                        printf("EN_CHANGE %d %d\r\n", laststrlen, newstrlen);
-                        if(newstrlen>laststrlen){
-                            bytes_ct+=newstrlen-laststrlen;
-                            for(int n=laststrlen;n<=newstrlen;n++){
-                                if((unsigned char)strbuf[n]>0x80){
-                                    if(n+1<=newstrlen){
-                                        chs_put_in_list(&strbuf[n], his_buf, HIS_SIZE);
-                                        n++;
-                                    }
-                                }
-                            }
-                        }
-                        //printf("%s\r\n", strbuf);
-                        printf("len %d, max %d\r\n", strlen(strbuf), BUFSIZE-EMPTYLEFT);
-                        if(strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
-                            printf("need left move\r\n");
-                            while(!end_of_file && strlen(strbuf)>(BUFSIZE-EMPTYLEFT)){
-                                if((unsigned char)(0xff&strbuf[0])>(unsigned char)0x80){
-                                    str_leftmove(strbuf, 2);
-                                    str_leftmove(objbuf, 2);
-                                }
-                                else{
-                                    str_leftmove(strbuf, 1);
-                                    str_leftmove(objbuf, 1);
-                                }
-                            }
-                            makeup_obj();
-                            printf("strlen strbuf=%d, max %d\r\n", strlen(strbuf), (BUFSIZE-EMPTYLEFT));
-                        }
-                        printf("strshow:\r\n");
-                        dumpstr(strbuf);
-                        printf("objshow:\r\n");
-                        dumpstr(objbuf);
-                        do_compare();
-                        laststrlen=strlen(strbuf);
-                        SetWindowText(sHd, stext_buf);
-                        SetWindowText(editHd, strbuf);
-                        SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
+                        handle_input();
                         InvalidateRect(hwnd,NULL,TRUE);
-                        if_end();
                     }
                     else if(EN_MAXTEXT==HIWORD(wParam)){
                         printf("max!!!\r\n");
