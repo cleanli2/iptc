@@ -48,6 +48,7 @@ char stext_buf[50];
 char stext_buf2[50];
 int cur_size=0, g_filesize=0;
 void save_hint();
+void datelog();
 
 void csa_init()
 {
