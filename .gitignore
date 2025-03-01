@@ -2,3 +2,5 @@
 *.o
 save
 book.txt
+*.txt
+*.log
