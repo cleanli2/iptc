@@ -13,6 +13,7 @@
 
 //#pragma comment(lib, "ws2_32.lib")
 
+#define FONTSIZE 30
 HINSTANCE hg_app;
 HWND editHd;
 HWND sHd;
@@ -303,8 +304,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
            WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX& ~WS_THICKFRAME,
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */
-           TEXT_W+300,                 /* The programs width */
-           TEXT_H+150,                 /* and height in pixels */
+           TEXT_W+350,                 /* The programs width */
+           TEXT_H+140,                 /* and height in pixels */
            HWND_DESKTOP,        /* The window is a child-window to desktop */
            NULL,                /* No menu */
            hThisInstance,       /* Program Instance handler */
@@ -443,7 +444,7 @@ void do_compare()
 void set_font()
 {
     LOGFONT font;
-    font.lfHeight = 36;
+    font.lfHeight = FONTSIZE;
     font.lfWidth = 0;
     font.lfEscapement = 0;
     font.lfOrientation = 0;
@@ -528,7 +529,7 @@ void save_hint()
 
 /*  This function is called by the Windows function DispatchMessage()  */
 
-char common_cc[]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当>佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定"};
+char common_cc[]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定"};
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int newstrlen;
@@ -658,7 +659,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
                 LOGFONT font;
 
-                font.lfHeight = 32;
+                font.lfHeight = FONTSIZE;
                 //font.lfHeight = MulDiv(20, GetDeviceCaps(hdc, LOGPIXELSY), 72);
                 font.lfWidth = 0;
                 font.lfEscapement = 0;
@@ -679,7 +680,10 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
                 SelectObject(hdc, hFont);
                 SetTextColor(hdc, RGB(0, 128, 255));
-                TextOut(hdc, TEXT_W+10, 40, "的",2);
+                SetTextCharacterExtra(hdc, 2);
+                for(int i=0;i<12;i++){
+                    TextOut(hdc, TEXT_W+10, 40+i*(FONTSIZE+2), common_cc+i*20,20);
+                }
                 EndPaint(hwnd, &ps);
             }
             break;
