@@ -270,6 +270,15 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     WNDCLASSEX wincl;        /* Data structure for the windowclass */
     struct stat fstat;
     time(&sttt);
+
+    HANDLE h_mutex = CreateMutex(NULL, FALSE, "iptc_m");
+    DWORD err = GetLastError();
+    if(err==ERROR_ALREADY_EXISTS){
+        MessageBox(NULL, _T("已经打开了！请先关闭原来的窗口再打开。"), _T("提示"),MB_OK);
+        return 0;
+    }
+
+
     log_fp=fopen("iptc.log", "a");
     if(!log_fp){
         printf("open log failed\r\n");
@@ -295,6 +304,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     }
 
     if(0>file_convert()){
+        fprintf(log_fp, "file confvert fail\r\n");
+        fclose(log_fp);
         return -1;
     }
 
@@ -303,6 +314,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     if(!g_fp){
         printf("open book.txt failed\r\n");
         MessageBox(NULL, _T("打开book.txt失败，退出！"), _T("提示"),MB_OK);
+        fprintf(log_fp, "open boot.txt fail\r\n");
+        fclose(log_fp);
         return -1;
     }
     else{
@@ -312,6 +325,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     if(stat("book.txt", &fstat)<0){
         printf("get book.txt filesize failed\r\n");
         MessageBox(NULL, _T("获取book.txt大小失败，退出！"), _T("提示"),MB_OK);
+        fprintf(log_fp, "getfilesize boot.txt fail\r\n");
+        fclose(log_fp);
         return -1;
     }
 
@@ -339,8 +354,11 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     wincl.hbrBackground = (HBRUSH) COLOR_BACKGROUND;
 
     /* Register the window class, and if it fails quit the program */
-    if (!RegisterClassEx (&wincl))
+    if (!RegisterClassEx (&wincl)){
+        fprintf(log_fp, "register windows class fail\r\n");
+        fclose(log_fp);
         return 0;
+    }
     hg_app=hThisInstance;
 
     /* The class is registered, let's create the program*/
