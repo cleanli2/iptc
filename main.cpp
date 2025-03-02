@@ -685,13 +685,13 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 if(sel_cn>=0){
                     if(sel_cn==g_sel_cn){
                         printf("%d sel confirmed\r\n", g_sel_cn);
-                        if(g_sel_cn<120){
+                        if(g_sel_cn<TWOC1){
                             ocnc[0]=common_cc[g_sel_cn*2];
                             ocnc[1]=common_cc[g_sel_cn*2+1];
                         }
                         else{
-                            ocnc[0]=his_buf[(g_sel_cn-120)*2];
-                            ocnc[1]=his_buf[(g_sel_cn-120)*2+1];
+                            ocnc[0]=his_buf[(g_sel_cn-TWOC1)*2];
+                            ocnc[1]=his_buf[(g_sel_cn-TWOC1)*2+1];
                         }
                         ocnc[2]=0;
                         strcat(strbuf, ocnc);
