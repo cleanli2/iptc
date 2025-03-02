@@ -413,7 +413,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
             bytes_ct, bytes_ct/2, t_secs/60, t_secs%60, bytes_ct*60/2/t_secs);
     printf("%s", hint_rec);
     fprintf(log_fp, "%s", hint_rec);
-    MessageBox(NULL, _T(hint_rec), _T("提示"),MB_OK);
+    //MessageBox(NULL, _T(hint_rec), _T("提示"),MB_OK);
 
     save_hint();
     fprintf(log_fp, "quit\r\n\r\n");
