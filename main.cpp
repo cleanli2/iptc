@@ -676,7 +676,7 @@ void handle_input()
 void update_showbuf()
 {
     sprintf(ict_sbf, "%05d ×Ö½Ú", bytes_ct);
-    sprintf(spd_sbf, "%03dºº×Ö/·Ö", bytes_ct*60/timer_count);
+    sprintf(spd_sbf, "%03dºº×Ö/·Ö", bytes_ct*60/2/timer_count);
 }
 
 VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
