@@ -634,6 +634,7 @@ void handle_input()
     laststrlen=strlen(strbuf);
     SetWindowText(sHd, stext_buf);
     SetWindowText(editHd, strbuf);
+    SetFocus(editHd);
     SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
     if_end();
 }
