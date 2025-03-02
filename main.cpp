@@ -688,8 +688,11 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
     HWND hwnd;
     if (lpParam != NULL)
     {
+        RECT rct={TIMER_TXTX, TIMER_TXTY, TIMER_TXTX+WX*8, TIMER_TXTY+WY};
+        RECT rctict={ICT_TXTX, ICT_TXTY, ICT_TXTX+WX*8, ICT_TXTY+WY*2};
         hwnd=(HWND)lpParam;
-        InvalidateRect(hwnd,NULL,TRUE);
+        InvalidateRect(hwnd,&rct,TRUE);
+        InvalidateRect(hwnd,&rctict,TRUE);
     }
 }
 
