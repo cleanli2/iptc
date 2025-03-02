@@ -32,8 +32,6 @@ HWND cmc_sHd;
 #define WY (FONTSIZE+CYSP)
 #define WX (FONTSIZE+CXSP+1)
 #define WX2 ((WX)+1)
-#define CIXE1 (CIXS+WX*10)
-#define CIYE1 (CIYS+WY*12)
 #define CIXS1 (CIXS-WX2*22-6)
 #define CIYS1 (CIYS+WY*13)
 #define CIXE2 (CIXS)
@@ -43,6 +41,10 @@ HWND cmc_sHd;
 #define CIW2 726
 #define CMCC_SIZE 480
 #define HIS_SIZE 88
+#define CSPLINE (CIW/WX)
+#define CSPLINE2 (CIW2/WX2)
+#define CIXE1 (CIXS+WX*CSPLINE)
+#define CIYE1 (CIYS+WY*14)
 char common_cc[CMCC_SIZE+1]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定质点意教叫觉然宇宙从经象吗神行目但外形小干传求同知根坏特门地年命越走吃方于如变练老最存面难长量认谁轮者打相才带力识全度德业提态思头果前治掉念哪话社元转悟回边各无比等已儿受再世类界眼直信状代又部通式执感另让手白明关管完少整苦程著两放太达国主利"};
 char his_buf[HIS_SIZE+1]={"的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的"};
 
@@ -575,7 +577,7 @@ int get_selcn(int x, int y)
 {
     int ret;
     int cspline=CIW/WX;
-    int cspline2=CIW2/WX;
+    int cspline2=CIW2/WX2;
     if(IN_RANGE(x, y, CIXS, CIYS, CIXE1, CIYE1)){
         ret=(y-CIYS)/WY*cspline+(x-CIXS)/WX;
     }
