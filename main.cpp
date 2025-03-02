@@ -647,7 +647,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 editHd = CreateWindow(TEXT("edit"),TEXT(strbuf),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT|ES_MULTILINE,
                         10, 40, TEXT_W, TEXT_H, hwnd,(HMENU)MY_ID_EDIT, hg_app,NULL);
                 CreateWindow("Button", "重来", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        TEXT_W-240, 5, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
+                        TEXT_W-220, 5, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
                 CreateWindow("Button", "提示", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         10, 5, 100, 30, hwnd, (HMENU)MY_ID_BTNH, hg_app, NULL);
                 sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
@@ -658,7 +658,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 //         TEXT_W+10, 40, 300,100, hwnd, NULL, hg_app, NULL);
                 sprintf(stext_buf2, "Version:%s, built @ %s%s", GIT_SHA1, __DATE__, __TIME__);
                 CreateWindow("Static",stext_buf2, SS_SIMPLE | WS_CHILD | WS_VISIBLE,
-                        TEXT_W-120,10, 450,30, hwnd, NULL, hg_app, NULL);
+                        TEXT_W-100,10, 450,30, hwnd, NULL, hg_app, NULL);
                 set_font();
                 if_end();
                 break;
