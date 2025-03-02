@@ -382,8 +382,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
            szClassName,         /* Classname */
            _T("ÐÞ"),       /* Title Text */
            WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX& ~WS_THICKFRAME,
-           CW_USEDEFAULT,       /* Windows decides the position */
-           CW_USEDEFAULT,       /* where the window ends up on the screen */
+           0,
+           0,
            TEXT_W+410,                 /* The programs width */
            TEXT_H+140,                 /* and height in pixels */
            HWND_DESKTOP,        /* The window is a child-window to desktop */
