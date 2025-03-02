@@ -31,7 +31,7 @@ HWND cmc_sHd;
 #define CYSP 2
 #define WY (FONTSIZE+CYSP)
 #define WX (FONTSIZE+CXSP+2)
-#define CIXS1 (CIXS-WX*22-6)
+#define CIXS1 (CIXS-WX*22-2)
 #define CIYS1 (CIYS+WY*13)
 #define CIXE2 (CIXS)
 #define CIYE2 (CIYE1)
@@ -81,6 +81,20 @@ char stext_buf2[50];
 int cur_size=0, g_filesize=0;
 void save_hint();
 void datelog();
+
+#define TIMER_TXTX 978
+#define TIMER_TXTY 5
+#define ICT_TXTX 5
+#define ICT_TXTY CIYS1
+#define SPD_TXTX 5
+#define SPD_TXTY CIYS1+WY
+int timer_count=0;
+char timer_sbf[32]={0};
+char ict_sbf[32]={0};
+char spd_sbf[32]={0};
+HANDLE hTimer = NULL;
+HANDLE hTimerQueue = NULL;
+void update_showbuf();
 
 void csa_init()
 {
@@ -626,6 +640,7 @@ void handle_input()
                 }
             }
         }
+        update_showbuf();
     }
     //printf("%s\r\n", strbuf);
     printf("len %d, max %d\r\n", strlen(strbuf), BUFSIZE-EMPTYLEFT);
@@ -656,6 +671,49 @@ void handle_input()
     SendMessage(editHd, EM_SETSEL, strlen(strbuf), strlen(strbuf));
     if_end();
 }
+
+void update_showbuf()
+{
+    sprintf(ict_sbf, "%05d ×Ö½Ú", bytes_ct);
+    sprintf(spd_sbf, "%03dºº×Ö/·Ö", bytes_ct*60/timer_count);
+}
+
+VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
+{
+    timer_count++;
+    sprintf(timer_sbf, "%02d:%02d:%02d", timer_count/3600,
+            (timer_count%3600)/60, timer_count%60);
+    update_showbuf();
+    HWND hwnd;
+    if (lpParam != NULL)
+    {
+        hwnd=(HWND)lpParam;
+        InvalidateRect(hwnd,NULL,TRUE);
+    }
+}
+
+void timer_init(HWND hwnd)
+{
+    //timer init
+    // Create the timer queue.
+    hTimerQueue = CreateTimerQueue();
+    if (NULL == hTimerQueue)
+    {
+        //MessageBox(hwnd, "CreateTimerQueue failed", "Error", MB_ICONERROR);
+        printf("CreateTimerQueue failed");
+        return;
+    }
+    // Set a timer to call the timer routine in 10 seconds.
+    if (!CreateTimerQueueTimer( &hTimer, hTimerQueue,
+                (WAITORTIMERCALLBACK)TimerRoutine, hwnd , 500, 1000, 0))
+    {
+        //MessageBox(hwnd, "CreateTimerQueueTimer failed", "Error", MB_ICONERROR);
+        printf("CreateTimerQueueTimer failed");
+        return;
+    }
+
+}
+
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     //printf("-%x %x\r\n", wParam, lParam);
@@ -681,6 +739,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 CreateWindow("Static",stext_buf2, SS_SIMPLE | WS_CHILD | WS_VISIBLE,
                         TEXT_W-100,10, 450,30, hwnd, NULL, hg_app, NULL);
                 set_font();
+                timer_init(hwnd);
                 if_end();
                 break;
             }
@@ -775,6 +834,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 PAINTSTRUCT ps;
                 hdc = BeginPaint(hwnd, &ps);
 
+                TextOut(hdc, TIMER_TXTX, TIMER_TXTY, timer_sbf,strlen(timer_sbf));
+                TextOut(hdc, ICT_TXTX, ICT_TXTY, ict_sbf,strlen(ict_sbf));
+                TextOut(hdc, SPD_TXTX, SPD_TXTY, spd_sbf,strlen(spd_sbf));
                 if(hFont==NULL){
                     LOGFONT font;
 
