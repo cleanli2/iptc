@@ -1,0 +1,4 @@
+#include "iptc_rc.h"
+
+IPTC_ICON ICON "iptc.ico"
+IPTC_ICON_SM ICON "iptc_sm.ico"

@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <time.h>
 #include <sys/stat.h>
+#include "iptc_rc.h"
 
 //#pragma comment(lib, "ws2_32.lib")
 
@@ -358,8 +359,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     wincl.cbSize = sizeof (WNDCLASSEX);
 
     /* Use default icon and mouse-pointer */
-    wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
-    wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
+    wincl.hIcon = LoadIcon (hThisInstance,(LPCTSTR)(IPTC_ICON));
+    wincl.hIconSm = LoadIcon (hThisInstance,(LPCTSTR)(IPTC_ICON_SM));
     wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
     wincl.lpszMenuName = NULL;                 /* No menu */
     wincl.cbClsExtra = 0;                      /* No extra bytes after the window class */
