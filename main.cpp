@@ -568,6 +568,7 @@ void get_hint()
     postc[0]=objbuf[i];
     postc[1]=objbuf[i+1];
     postc[2]=0;
+    chs_put_in_list(postc, his_buf, HIS_SIZE);
     memcpy(prec, &strbuf[j], i-j);
     sprintf(hint_bufp[hint_idxp], "第%d次: 『%s』之后是：『%s』，文件第%d字节处。", hint_idxp+1, prec, postc, cur_size);
     memset(hint_rec, 0, sizeof(hint_rec));
@@ -824,6 +825,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         get_hint();
                         printf("button2 clicked\r\n");
                         MessageBox(NULL, _T(hint_rec), _T("提示"),MB_OK);
+                        InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     }
                 default:
