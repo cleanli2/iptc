@@ -13,7 +13,7 @@
 
 //#pragma comment(lib, "ws2_32.lib")
 
-#define FONTSIZE 30
+#define FONTSIZE 23
 HINSTANCE hg_app;
 HWND editHd;
 HWND sHd;
@@ -21,21 +21,32 @@ HWND cmc_sHd;
 #define MY_ID_EDIT 0x3501
 #define MY_ID_BT 0x3502
 #define MY_ID_BTNH 0x3503
-#define TEXT_W 720
+#define TEXT_W 666
 #define TEXT_H 320
 #define HINT_SIZE 10
 #define HINT_MAX 9
 #define CIXS (TEXT_W+10)
 #define CIYS (40)
+#define CXSP 1
+#define CYSP 2
+#define WY (FONTSIZE+CYSP)
+#define WX (FONTSIZE+CXSP+1)
+#define WX2 ((WX)+1)
 #define CIXE1 (CIXS+WX*10)
 #define CIYE1 (CIYS+WY*12)
-#define CIXS1 (CIXS-WX*22)
-#define CIYS1 (CIYS+WY*10)
+#define CIXS1 (CIXS-WX2*22-6)
+#define CIYS1 (CIYS+WY*13)
 #define CIXE2 (CIXS)
 #define CIYE2 (CIYE1)
 #define CIYS (40)
-#define WY (FONTSIZE+2)
-#define WX (FONTSIZE+3)
+#define CIW 375
+#define CIW2 726
+#define CMCC_SIZE 480
+#define HIS_SIZE 88
+char common_cc[CMCC_SIZE+1]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定质点意教叫觉然宇宙从经象吗神行目但外形小干传求同知根坏特门地年命越走吃方于如变练老最存面难长量认谁轮者打相才带力识全度德业提态思头果前治掉念哪话社元转悟回边各无比等已儿受再世类界眼直信状代又部通式执感另让手白明关管完少整苦程著两放太达国主利"};
+char his_buf[HIS_SIZE+1]={"的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的"};
+
+#define TWOC1  ((CMCC_SIZE-30)/2)
 #define SIG(x, xs, xe) ((x)>=(xs) && (xe)>=(x))
 #define IN_RANGE(x, y, xs, ys, xe, ye) (SIG(x, xs, xe))&&(SIG(y, ys, ye))
 
@@ -337,7 +348,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
            WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX& ~WS_THICKFRAME,
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */
-           TEXT_W+350,                 /* The programs width */
+           TEXT_W+410,                 /* The programs width */
            TEXT_H+140,                 /* and height in pixels */
            HWND_DESKTOP,        /* The window is a child-window to desktop */
            NULL,                /* No menu */
@@ -563,11 +574,13 @@ void save_hint()
 int get_selcn(int x, int y)
 {
     int ret;
+    int cspline=CIW/WX;
+    int cspline2=CIW2/WX;
     if(IN_RANGE(x, y, CIXS, CIYS, CIXE1, CIYE1)){
-        ret=(y-CIYS)/WY*10+(x-CIXS)/(FONTSIZE+3);
+        ret=(y-CIYS)/WY*cspline+(x-CIXS)/WX;
     }
     else if(IN_RANGE(x, y, CIXS1, CIYS1, CIXE2, CIYE2)){
-        ret=(y-CIYS1)/WY*22+(x-CIXS1)/(FONTSIZE+3)+120;
+        ret=(y-CIYS1)/WY*cspline2+(x-CIXS1)/WX+TWOC1;
     }
     else{
         ret = -1;
@@ -577,11 +590,6 @@ int get_selcn(int x, int y)
 }
 
 /*  This function is called by the Windows function DispatchMessage()  */
-
-#define CMCC_SIZE 240
-#define HIS_SIZE 88
-char common_cc[CMCC_SIZE+1]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定"};
-char his_buf[HIS_SIZE+1]={"的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的"};
 
 void handle_input()
 {
@@ -764,20 +772,21 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     font.lfClipPrecision = CLIP_STROKE_PRECIS | CLIP_MASK | CLIP_TT_ALWAYS | CLIP_LH_ANGLES;
                     font.lfQuality = ANTIALIASED_QUALITY;
                     font.lfPitchAndFamily = VARIABLE_PITCH | FF_DONTCARE;
-                    strcpy_s(font.lfFaceName, "黑体");
+                    strcpy_s(font.lfFaceName, "楷体");
 
                     hFont = ::CreateFontIndirect(&font);
                 }
 
                 oft = (HFONT)SelectObject(hdc, hFont);
                 SetTextColor(hdc, RGB(0, 128, 255));
-                SetTextCharacterExtra(hdc, 2);
-                for(int i=0;i<12;i++){
-                    TextOut(hdc, TEXT_W+10, 40+i*(FONTSIZE+2), common_cc+i*20,20);
+                SetTextCharacterExtra(hdc, CXSP);
+                for(int i=0;i<TWOC1/(CIW/WX);i++){
+                    TextOut(hdc, CIXS, CIYS+i*WY, common_cc+i*2*CIW/WX,2*CIW/WX);
                 }
                 SetTextColor(hdc, RGB(20, 128, 155));
-                TextOut(hdc, 5, 360, his_buf,44);
-                TextOut(hdc, 5, 392, his_buf+44,44);
+                SetTextCharacterExtra(hdc, CXSP);
+                TextOut(hdc, CIXS1, CIYS1, his_buf,44);
+                TextOut(hdc, CIXS1, CIYS1+WY, his_buf+44,44);
                 if(g_sel_cn>=0){
                     HPEN hPen = CreatePen(PS_SOLID,4,RGB(0,0,0));;
                     HPEN orgPen = (HPEN)SelectObject(hdc, hPen);
