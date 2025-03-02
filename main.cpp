@@ -156,8 +156,11 @@ void str_leftmove(char*s, int n)
 void chs_put_in_list(char*ch, char*list, int len)
 {
     int i;
-    printf("chs_put_in_list\r\n");
-    dumpstr(list);
+    for(i=0;i<TWOC1;i+=2){
+        if((ch[0]==common_cc[i])&&(ch[1]==common_cc[i+1])){
+            return;
+        }
+    }
     for(i=0;i<len;i+=2){
         if((ch[0]==list[i])&&(ch[1]==list[i+1])){
             break;
@@ -167,7 +170,6 @@ void chs_put_in_list(char*ch, char*list, int len)
     str_leftmove(list+i, 2);
     list[len-2]=ch[0];
     list[len-1]=ch[1];
-    dumpstr(list);
 }
 
 
