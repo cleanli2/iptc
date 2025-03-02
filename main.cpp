@@ -30,21 +30,20 @@ HWND cmc_sHd;
 #define CXSP 1
 #define CYSP 2
 #define WY (FONTSIZE+CYSP)
-#define WX (FONTSIZE+CXSP+1)
-#define WX2 ((WX)+1)
-#define CIXS1 (CIXS-WX2*22-6)
+#define WX (FONTSIZE+CXSP+2)
+#define CIXS1 (CIXS-WX*22-6)
 #define CIYS1 (CIYS+WY*13)
 #define CIXE2 (CIXS)
 #define CIYE2 (CIYE1)
 #define CIYS (40)
-#define CIW 375
-#define CIW2 726
+#define CIW 390
+#define CSPLINE2 (22)
+#define CIW2 (WX*CSPLINE2)
 #define CMCC_SIZE 480
 #define HIS_SIZE 88
 #define CSPLINE (CIW/WX)
-#define CSPLINE2 (CIW2/WX2)
 #define CIXE1 (CIXS+WX*CSPLINE)
-#define CIYE1 (CIYS+WY*14)
+#define CIYE1 (CIYS+WY*15)
 char common_cc[CMCC_SIZE+1]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定质点意教叫觉然宇宙从经象吗神行目但外形小干传求同知根坏特门地年命越走吃方于如变练老最存面难长量认谁轮者打相才带力识全度德业提态思头果前治掉念哪话社元转悟回边各无比等已儿受再世类界眼直信状代又部通式执感另让手白明关管完少整苦程著两放太达国主利"};
 char his_buf[HIS_SIZE+1]={"的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的"};
 
@@ -576,13 +575,12 @@ void save_hint()
 int get_selcn(int x, int y)
 {
     int ret;
-    int cspline=CIW/WX;
-    int cspline2=CIW2/WX2;
+    printf("CSPLINE=%d\r\n", CSPLINE);
     if(IN_RANGE(x, y, CIXS, CIYS, CIXE1, CIYE1)){
-        ret=(y-CIYS)/WY*cspline+(x-CIXS)/WX;
+        ret=(y-CIYS)/WY*CSPLINE+(x-CIXS)/WX;
     }
     else if(IN_RANGE(x, y, CIXS1, CIYS1, CIXE2, CIYE2)){
-        ret=(y-CIYS1)/WY*cspline2+(x-CIXS1)/WX+TWOC1;
+        ret=(y-CIYS1)/WY*CSPLINE2+(x-CIXS1)/WX+TWOC1;
     }
     else{
         ret = -1;
@@ -792,20 +790,20 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 if(g_sel_cn>=0){
                     HPEN hPen = CreatePen(PS_SOLID,4,RGB(0,0,0));;
                     HPEN orgPen = (HPEN)SelectObject(hdc, hPen);
-                    if(g_sel_cn<120){
-                        MoveToEx(hdc, CIXS+(g_sel_cn%10)*WX, CIYS+(g_sel_cn/10)*WY, NULL);
-                        LineTo(hdc, CIXS+(g_sel_cn%10)*WX, CIYS+(g_sel_cn/10)*WY+WY);
-                        LineTo(hdc, CIXS+(g_sel_cn%10)*WX+WX, CIYS+(g_sel_cn/10)*WY+WY);
-                        LineTo(hdc, CIXS+(g_sel_cn%10)*WX+WX, CIYS+(g_sel_cn/10)*WY);
-                        LineTo(hdc, CIXS+(g_sel_cn%10)*WX, CIYS+(g_sel_cn/10)*WY);
+                    if(g_sel_cn<TWOC1){
+                        MoveToEx(hdc, CIXS+(g_sel_cn%CSPLINE)*WX, CIYS+(g_sel_cn/CSPLINE)*WY, NULL);
+                        LineTo(hdc, CIXS+(g_sel_cn%CSPLINE)*WX, CIYS+(g_sel_cn/CSPLINE)*WY+WY);
+                        LineTo(hdc, CIXS+(g_sel_cn%CSPLINE)*WX+WX, CIYS+(g_sel_cn/CSPLINE)*WY+WY);
+                        LineTo(hdc, CIXS+(g_sel_cn%CSPLINE)*WX+WX, CIYS+(g_sel_cn/CSPLINE)*WY);
+                        LineTo(hdc, CIXS+(g_sel_cn%CSPLINE)*WX, CIYS+(g_sel_cn/CSPLINE)*WY);
                     }
                     else{
-                        int ti=g_sel_cn-120;
-                        MoveToEx(hdc, CIXS1+(ti%22)*WX, CIYS1+(ti/22)*WY, NULL);
-                        LineTo(hdc, CIXS1+(ti%22)*WX, CIYS1+(ti/22)*WY+WY);
-                        LineTo(hdc, CIXS1+(ti%22)*WX+WX, CIYS1+(ti/22)*WY+WY);
-                        LineTo(hdc, CIXS1+(ti%22)*WX+WX, CIYS1+(ti/22)*WY);
-                        LineTo(hdc, CIXS1+(ti%22)*WX, CIYS1+(ti/22)*WY);
+                        int ti=g_sel_cn-TWOC1;
+                        MoveToEx(hdc, CIXS1+(ti%CSPLINE2)*WX, CIYS1+(ti/CSPLINE2)*WY, NULL);
+                        LineTo(hdc, CIXS1+(ti%CSPLINE2)*WX, CIYS1+(ti/CSPLINE2)*WY+WY);
+                        LineTo(hdc, CIXS1+(ti%CSPLINE2)*WX+WX, CIYS1+(ti/CSPLINE2)*WY+WY);
+                        LineTo(hdc, CIXS1+(ti%CSPLINE2)*WX+WX, CIYS1+(ti/CSPLINE2)*WY);
+                        LineTo(hdc, CIXS1+(ti%CSPLINE2)*WX, CIYS1+(ti/CSPLINE2)*WY);
                     }
                     SelectObject(hdc, orgPen);
                     DeleteObject(hPen);
