@@ -42,12 +42,12 @@ HWND cmc_sHd;
 #define CSPLINE2 (TWOC2)
 #define CIW2 (WX*CSPLINE2)
 #define CMCC_SIZE 480
-#define HIS_SIZE 88
+#define HIS_SIZE (TWOC2*4)
 #define CSPLINE (CIW/WX)
 #define CIXE1 (CIXS+WX*CSPLINE)
 #define CIYE1 (CIYS+WY*15)
 char common_cc[CMCC_SIZE+1]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定质点意教叫觉然宇宙从经象吗神行目但外形小干传求同知根坏特门地年命越走吃方于如变练老最存面难长量认谁轮者打相才带力识全度德业提态思头果前治掉念哪话社元转悟回边各无比等已儿受再世类界眼直信状代又部通式执感另让手白明关管完少整苦程著两放太达国主利"};
-char his_buf[HIS_SIZE+1]={"的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的"};
+char his_buf[HIS_SIZE+1]={"的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的"};
 
 #define TWOC1  ((CMCC_SIZE-120)/2)
 #define SIG(x, xs, xe) ((x)>=(xs) && (xe)>=(x))
