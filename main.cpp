@@ -14,7 +14,8 @@
 
 //#pragma comment(lib, "ws2_32.lib")
 
-#define FONTSIZE 23
+#define TWOC2 18
+#define FONTSIZE 30
 HINSTANCE hg_app;
 HWND editHd;
 HWND sHd;
@@ -22,8 +23,8 @@ HWND cmc_sHd;
 #define MY_ID_EDIT 0x3501
 #define MY_ID_BT 0x3502
 #define MY_ID_BTNH 0x3503
-#define TEXT_W 666
-#define TEXT_H 320
+#define TEXT_W 580
+#define TEXT_H 288
 #define HINT_SIZE 10
 #define HINT_MAX 9
 #define CIXS (TEXT_W+10)
@@ -31,14 +32,14 @@ HWND cmc_sHd;
 #define CXSP 1
 #define CYSP 2
 #define WY (FONTSIZE+CYSP)
-#define WX (FONTSIZE+CXSP+2)
-#define CIXS1 (CIXS-WX*22-2)
-#define CIYS1 (CIYS+WY*13)
+#define WX (FONTSIZE+CXSP+1)
+#define CIXS1 (CIXS-WX*TWOC2-2)
+#define CIYS1 (CIYS+WY*9)
 #define CIXE2 (CIXS)
 #define CIYE2 (CIYE1)
 #define CIYS (40)
-#define CIW 390
-#define CSPLINE2 (22)
+#define CIW 480
+#define CSPLINE2 (TWOC2)
 #define CIW2 (WX*CSPLINE2)
 #define CMCC_SIZE 480
 #define HIS_SIZE 88
@@ -48,7 +49,7 @@ HWND cmc_sHd;
 char common_cc[CMCC_SIZE+1]={"的是不人一这了你有个就在他我能功么来修炼也那都到们大法上中去要出它为可看讲说什以心时会多样种体还好高常想气所现家下没很身自西过事得东次层生真道些间给把正里着当佛子做己天因病后往性之开成发物用情候师学本呢和起化作只其问空许够实理别对而动题怎定质点意教叫觉然宇宙从经象吗神行目但外形小干传求同知根坏特门地年命越走吃方于如变练老最存面难长量认谁轮者打相才带力识全度德业提态思头果前治掉念哪话社元转悟回边各无比等已儿受再世类界眼直信状代又部通式执感另让手白明关管完少整苦程著两放太达国主利"};
 char his_buf[HIS_SIZE+1]={"的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的的"};
 
-#define TWOC1  ((CMCC_SIZE-30)/2)
+#define TWOC1  ((CMCC_SIZE-120)/2)
 #define SIG(x, xs, xe) ((x)>=(xs) && (xe)>=(x))
 #define IN_RANGE(x, y, xs, ys, xe, ye) (SIG(x, xs, xe))&&(SIG(y, ys, ye))
 
@@ -85,10 +86,10 @@ void datelog();
 
 #define TIMER_TXTX 978
 #define TIMER_TXTY 5
-#define ICT_TXTX 5
-#define ICT_TXTY CIYS1
-#define SPD_TXTX 5
-#define SPD_TXTY CIYS1+WY
+#define ICT_TXTX 15
+#define ICT_TXTY CIYS1+2*WY+5
+#define SPD_TXTX 195
+#define SPD_TXTY CIYS1+2*WY+5
 int timer_count=0;
 char timer_sbf[32]={0};
 char ict_sbf[32]={0};
@@ -384,8 +385,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
            WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX& ~WS_THICKFRAME,
            0,
            0,
-           TEXT_W+410,                 /* The programs width */
-           TEXT_H+140,                 /* and height in pixels */
+           TEXT_W+496,                 /* The programs width */
+           TEXT_H+172,                 /* and height in pixels */
            HWND_DESKTOP,        /* The window is a child-window to desktop */
            NULL,                /* No menu */
            hThisInstance,       /* Program Instance handler */
@@ -676,8 +677,8 @@ void handle_input()
 
 void update_showbuf()
 {
-    sprintf(ict_sbf, "%05d 字节", bytes_ct);
-    sprintf(spd_sbf, "%03d汉字/分", bytes_ct*60/2/timer_count);
+    sprintf(ict_sbf, "已输入 %05d 字节", bytes_ct);
+    sprintf(spd_sbf, "打字速度 %03d 汉字/分", bytes_ct*60/2/timer_count);
 }
 
 VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
@@ -690,7 +691,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
     if (lpParam != NULL)
     {
         RECT rct={TIMER_TXTX, TIMER_TXTY, TIMER_TXTX+WX*8, TIMER_TXTY+WY};
-        RECT rctict={ICT_TXTX, ICT_TXTY, ICT_TXTX+WX*8, ICT_TXTY+WY*2};
+        RECT rctict={ICT_TXTX, ICT_TXTY, ICT_TXTX+WX*20, ICT_TXTY+WY*2};
         hwnd=(HWND)lpParam;
         InvalidateRect(hwnd,&rct,TRUE);
         InvalidateRect(hwnd,&rctict,TRUE);
@@ -731,7 +732,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 editHd = CreateWindow(TEXT("edit"),TEXT(strbuf),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT|ES_MULTILINE,
                         10, 40, TEXT_W, TEXT_H, hwnd,(HMENU)MY_ID_EDIT, hg_app,NULL);
                 CreateWindow("Button", "重来", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        TEXT_W-220, 5, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
+                        TEXT_W-116, 5, 100, 30, hwnd, (HMENU)MY_ID_BT, hg_app, NULL);
                 CreateWindow("Button", "提示", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         10, 5, 100, 30, hwnd, (HMENU)MY_ID_BTNH, hg_app, NULL);
                 sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
@@ -742,7 +743,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 //         TEXT_W+10, 40, 300,100, hwnd, NULL, hg_app, NULL);
                 sprintf(stext_buf2, "Version:%s, built @ %s%s", GIT_SHA1, __DATE__, __TIME__);
                 CreateWindow("Static",stext_buf2, SS_SIMPLE | WS_CHILD | WS_VISIBLE,
-                        TEXT_W-100,10, 450,30, hwnd, NULL, hg_app, NULL);
+                        TEXT_W-10,10, 450,30, hwnd, NULL, hg_app, NULL);
                 set_font();
                 timer_init(hwnd);
                 if_end();
@@ -874,8 +875,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 }
                 SetTextColor(hdc, RGB(20, 128, 155));
                 SetTextCharacterExtra(hdc, CXSP);
-                TextOut(hdc, CIXS1, CIYS1, his_buf,44);
-                TextOut(hdc, CIXS1, CIYS1+WY, his_buf+44,44);
+                TextOut(hdc, CIXS1, CIYS1, his_buf,TWOC2*2);
+                TextOut(hdc, CIXS1, CIYS1+WY, his_buf+TWOC2*2,TWOC2*2);
                 if(g_sel_cn>=0){
                     HPEN hPen = CreatePen(PS_SOLID,4,RGB(0,0,0));;
                     HPEN orgPen = (HPEN)SelectObject(hdc, hPen);
