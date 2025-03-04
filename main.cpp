@@ -80,7 +80,7 @@ char strbuf[BUFSIZE+1];
 char objbuf[BUFSIZE+1]={0};
 char stext_buf[50];
 char stext_buf2[50];
-int cur_size=0, g_filesize=0;
+int cur_size=0, g_filesize=0, cur_size_begin;
 void save_hint();
 void datelog();
 
@@ -88,12 +88,12 @@ void datelog();
 #define TIMER_TXTY 5
 #define ICT_TXTX 15
 #define ICT_TXTY CIYS1+2*WY+5
-#define SPD_TXTX 195
+#define SPD_TXTX 375
 #define SPD_TXTY CIYS1+2*WY+5
 int timer_count=0;
 char timer_sbf[32]={0};
-char ict_sbf[32]={0};
-char spd_sbf[32]={0};
+char ict_sbf[64]={0};
+char spd_sbf[64]={0};
 HANDLE hTimer = NULL;
 HANDLE hTimerQueue = NULL;
 void update_showbuf();
@@ -227,6 +227,7 @@ void do_iptc_init()
         }
         put_csa(cur_size);
     }
+    cur_size_begin=cur_size;
     printf("cursize=%d after hint\r\n", cur_size);
     fprintf(log_fp, "cursize=%d after hint\r\n", cur_size);
     laststrlen=strlen(strbuf);
@@ -514,7 +515,7 @@ void do_compare()
         }
         cur_size=ftell(g_fp)-(strlen(objbuf)-strlen(strbuf));
         put_csa(cur_size);
-        sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%",
+        sprintf(stext_buf, "当前%d字节，总长%d字节，完成%d%%    ",
                 cur_size, g_filesize, cur_size*100/g_filesize);
     }
     else{
@@ -635,6 +636,7 @@ void handle_input()
     printf("EN_CHANGE %d %d\r\n", laststrlen, newstrlen);
     if(newstrlen>laststrlen){
         bytes_ct+=newstrlen-laststrlen;
+        printf("bytes_ct=%d\r\n", bytes_ct);
         for(int n=laststrlen;n<=newstrlen;n++){
             if((unsigned char)strbuf[n]>0x80){
                 if(n+1<=newstrlen){
@@ -643,7 +645,6 @@ void handle_input()
                 }
             }
         }
-        update_showbuf();
     }
     //printf("%s\r\n", strbuf);
     printf("len %d, max %d\r\n", strlen(strbuf), BUFSIZE-EMPTYLEFT);
@@ -668,6 +669,7 @@ void handle_input()
     dumpstr(objbuf);
     do_compare();
     laststrlen=strlen(strbuf);
+    update_showbuf();
     SetWindowText(sHd, stext_buf);
     SetWindowText(editHd, strbuf);
     SetFocus(editHd);
@@ -677,8 +679,9 @@ void handle_input()
 
 void update_showbuf()
 {
-    sprintf(ict_sbf, "已输入 %05d 字节", bytes_ct);
-    sprintf(spd_sbf, "打字速度 %03d 汉字/分", bytes_ct*60/2/timer_count);
+    sprintf(ict_sbf, "已输入%05d字节，文件中推進%05d字节", bytes_ct, cur_size-cur_size_begin);
+        
+    sprintf(spd_sbf, "打字速度%03d汉字/分", bytes_ct*60/2/timer_count);
 }
 
 VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
